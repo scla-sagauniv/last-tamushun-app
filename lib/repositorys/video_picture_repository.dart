@@ -1,16 +1,17 @@
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:last_tamushun_app/demo_data/picture_demo.dart';
 import 'package:last_tamushun_app/models/video_picture.dart';
 
-class VideoPictureProvider {
-  final VideoPictureRepository _videopictureRepository =
-      VideoPictureRepository();
+final videoPictureRepositoryProvider = Provider<VideoPictureRepository>(
+  (ref) => VideoPictureRepositoryImpl(),
+);
 
-  Future<List<VideoPicture>> getVideoPicture() async {
-    return await _videopictureRepository.getVideoPicture();
-  }
+abstract class VideoPictureRepository {
+  Future<List<VideoPicture>> getVideoPicture();
 }
 
-class VideoPictureRepository {
+class VideoPictureRepositoryImpl implements VideoPictureRepository {
+  @override
   Future<List<VideoPicture>> getVideoPicture() async {
     return pictureDemo;
   }
