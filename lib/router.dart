@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:last_tamushun_app/home/home_page.dart';
 
 // GoRouter configuration
 GoRouter router = GoRouter(
@@ -10,10 +11,7 @@ GoRouter router = GoRouter(
     ),
     GoRoute(
       path: '/',
-      builder: (context, state) => ElevatedButton(
-        onPressed: () => context.go('/route_list'),
-        child: const Text('Go to Route List'),
-      ),
+      builder: (context, state) => const HomePage(),
     ),
   ],
 );
