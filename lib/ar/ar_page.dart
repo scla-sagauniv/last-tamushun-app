@@ -7,7 +7,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:last_tamushun_app/ar/gallery.dart';
 import 'package:last_tamushun_app/models/video_picture.dart';
 import 'package:last_tamushun_app/repositorys/video_picture_repository.dart';
-import 'package:vector_math/vector_math_64.dart' as vector;
 
 class ARPage extends ConsumerStatefulWidget {
   const ARPage({super.key});
@@ -58,25 +57,6 @@ class ARPageState extends ConsumerState<ARPage> {
   }
 
   Widget _builder(List<VideoPicture> videoPictures) {
-    vector.Vector3 rotationMatrixToEulerAngles(vector.Matrix3 R) {
-      double pitch, roll, yaw;
-
-      pitch = asin(-R.getRow(2)[0]);
-
-      if (R.getRow(2)[0].abs() < 0.999) {
-        yaw = asin(R.getRow(1)[0] / cos(pitch));
-        roll = asin(R.getRow(2)[1] / cos(pitch));
-      } else if (R.getRow(2)[0] > 0) {
-        yaw = asin(-R.getRow(0)[1]);
-        roll = 0;
-      } else {
-        yaw = asin(-R.getRow(0)[1]);
-        roll = 0;
-      }
-
-      return vector.Vector3(pitch, roll + pi / 2, yaw);
-    }
-
     void onAnchorWasFound(ARKitAnchor anchor) {
       if (anchor is ARKitImageAnchor) {
         setState(() {
@@ -108,14 +88,11 @@ class ARPageState extends ConsumerState<ARPage> {
           materials: [material],
         );
 
-        final detectPosition = anchor.transform.getTranslation();
-        final detectRotation = anchor.transform.getRotation();
-        final detectEulerAngles = rotationMatrixToEulerAngles(detectRotation);
+        final detectedTransform = anchor.transform;
+        detectedTransform.rotateX(pi / 2);
         final node = ARKitNode(
           geometry: plane,
-          position: vector.Vector3(
-              detectPosition.x, detectPosition.y, detectPosition.z),
-          eulerAngles: detectEulerAngles,
+          transformation: detectedTransform,
         );
         arkitController.add(node);
       }
