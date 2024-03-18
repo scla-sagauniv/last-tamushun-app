@@ -57,29 +57,22 @@ class PictureBrowsingPageState extends ConsumerState<PictureBrowsingPage> {
 
   Widget _builder(List<VideoPicture> videoPictures) {
     vector.Vector3 rotationMatrixToEulerAngles(vector.Matrix3 R) {
-      double sy = sqrt(
-          R.getRow(0)[0] * R.getRow(0)[0] + R.getRow(1)[0] * R.getRow(1)[0]);
+      double pitch, roll, yaw;
 
-      bool singular = sy < 1e-6;
+      pitch = asin(-R.getRow(2)[0]);
 
-      double x, y, z;
-
-      if (!singular) {
-        x = atan2(R.getRow(2)[1], R.getRow(2)[2]);
-        y = atan2(-R.getRow(2)[0], sy);
-        z = atan2(R.getRow(1)[0], R.getRow(0)[0]);
+      if (R.getRow(2)[0].abs() < 0.999) {
+        yaw = asin(R.getRow(1)[0] / cos(pitch));
+        roll = asin(R.getRow(2)[1] / cos(pitch));
+      } else if (R.getRow(2)[0] > 0) {
+        yaw = asin(-R.getRow(0)[1]);
+        roll = 0;
       } else {
-        x = atan2(-R.getRow(1)[2], R.getRow(1)[1]);
-        y = atan2(-R.getRow(2)[0], sy);
-        z = 0;
+        yaw = asin(-R.getRow(0)[1]);
+        roll = 0;
       }
 
-      // ラジアンから度に変換
-      x = vector.degrees(x);
-      y = vector.degrees(y);
-      z = vector.degrees(z);
-
-      return vector.Vector3(z - pi / 2, x, y);
+      return vector.Vector3(pitch, roll + pi / 2, yaw);
     }
 
     void onAnchorWasFound(ARKitAnchor anchor) {
@@ -123,12 +116,6 @@ class PictureBrowsingPageState extends ConsumerState<PictureBrowsingPage> {
           eulerAngles: detectEulerAngles,
         );
         arkitController.add(node);
-
-        timer = Timer.periodic(const Duration(milliseconds: 500), (timer) {
-          final old = node.eulerAngles;
-          final eulerAngles = vector.Vector3(old.x + 0.1, old.y, old.z);
-          node.eulerAngles = eulerAngles;
-        });
       }
     }
 
