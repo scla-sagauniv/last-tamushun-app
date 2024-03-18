@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
+import 'package:last_tamushun_app/hooks/logout.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class HomePage extends StatelessWidget {
-  const HomePage({super.key});
+class HomePage extends StatefulWidget {
+  const HomePage({Key? key}) : super(key: key);
+  @override
+  _HomePageState createState() => _HomePageState();
+}
 
+class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
@@ -19,6 +25,11 @@ class HomePage extends StatelessWidget {
               icon: const Icon(Icons.account_circle),
               onPressed: () => context.go('/auth'),
             ),
+            IconButton(
+                icon: Icon(Icons.close),
+                onPressed: () async {
+                  await logout(context);
+                })
           ],
         ),
         body: Container(

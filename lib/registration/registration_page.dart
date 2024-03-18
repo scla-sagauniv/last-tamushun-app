@@ -10,7 +10,7 @@ class RegistrationPage extends StatelessWidget {
           title: const Text('Registration Page'),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
-            onPressed: () => context.pop(),
+            onPressed: () => context.go('/'),
           ),
         ),
         body: Column(

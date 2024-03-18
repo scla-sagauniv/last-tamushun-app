@@ -5,13 +5,17 @@ import 'package:last_tamushun_app/router.dart';
 void main() => runApp(const ProviderScope(child: MaterialApp(home: MyApp())));
 
 /// The main app.
-class MyApp extends StatelessWidget {
+class MyApp extends ConsumerWidget {
   /// Constructs a [MyApp]
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    // GoRouterオブジェクトをProviderから取得
+    final router = ref.watch(routerProvider);
     return MaterialApp.router(
+      // routeInformationParser: router.routeInformationParser,
+      // routerDelegate: router.routerDelegate,
       routerConfig: router,
     );
   }
