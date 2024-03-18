@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:last_tamushun_app/router.dart';
 
-void main() => runApp(const MaterialApp(home: MyApp()));
+void main() => runApp(const ProviderScope(child: MaterialApp(home: MyApp())));
 
 /// The main app.
 class MyApp extends StatelessWidget {
