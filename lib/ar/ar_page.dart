@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:arkit_plugin/arkit_plugin.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:last_tamushun_app/ar/gallery.dart';
 import 'package:last_tamushun_app/models/video_picture.dart';
 import 'package:last_tamushun_app/repositorys/video_picture_repository.dart';
 import 'package:vector_math/vector_math_64.dart' as vector;
@@ -20,7 +21,7 @@ class ARPageState extends ConsumerState<ARPage> {
   late String referenceImageName = '';
   late Future<List<VideoPicture>> videoPicturesFuture;
   late VideoPicture videoPictures;
-  late Timer timer;
+  Widget? galleryButton;
 
   @override
   void initState() {
@@ -43,6 +44,7 @@ class ARPageState extends ConsumerState<ARPage> {
         appBar: AppBar(
           title: const Text('Picture Browsing'),
         ),
+        floatingActionButton: galleryButton ?? const SizedBox(),
         body: snapshot.connectionState == ConnectionState.done
             ? _builder(snapshot.data!)
             : Column(
@@ -122,6 +124,12 @@ class ARPageState extends ConsumerState<ARPage> {
     void onARKitViewCreated(ARKitController arkitController) {
       this.arkitController = arkitController;
       arkitController.onAddNodeForAnchor = onAnchorWasFound;
+      setState(() {
+        galleryButton = Gallery(
+          videoPictures: videoPictures,
+          arkitController: arkitController,
+        );
+      });
     }
 
     return Stack(
