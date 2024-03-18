@@ -58,6 +58,14 @@ class HomePage extends StatelessWidget {
                   child: const Text('ar-gallery'),
                 ),
               ),
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => context.push('/ar'),
+                  child: const Text('ar'),
+                ),
+              ),
             ],
           ),
         ),

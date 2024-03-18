@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:last_tamushun_app/ar/ar_page.dart';
 import 'package:last_tamushun_app/ar_gallery/ar_gallery_page.dart';
 import 'package:last_tamushun_app/authentication/auth_page.dart';
 import 'package:last_tamushun_app/home/home_page.dart';
@@ -38,6 +39,10 @@ GoRouter router = GoRouter(
       path: '/location-browsing',
       builder: (context, state) => const LocationBrowsingPage(),
     ),
+    GoRoute(
+      path: '/ar',
+      builder: (context, state) => const ARPage(),
+    ),
   ],
 );
 
@@ -75,6 +80,10 @@ class RouteListPage extends StatelessWidget {
           ListTile(
             title: const Text('location-browsing'),
             onTap: () => context.go('/location-browsing'),
+          ),
+          ListTile(
+            title: const Text('ar'),
+            onTap: () => context.go('/ar'),
           ),
         ],
       ),
