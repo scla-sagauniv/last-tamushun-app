@@ -10,7 +10,7 @@ class LocationBrowsingPage extends StatelessWidget {
           title: const Text('LocationBrowsing Page'),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
-            onPressed: () => context.pop(),
+            onPressed: () => context.pop('/'),
           ),
         ),
         body: Column(
