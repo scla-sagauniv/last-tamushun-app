@@ -16,7 +16,7 @@ class GetMedia200Response {
     this.medium = const [],
   });
 
-  List<Object> medium;
+  List<Media> medium;
 
   @override
   bool operator ==(Object other) => identical(this, other) || other is GetMedia200Response &&
@@ -55,7 +55,7 @@ class GetMedia200Response {
       }());
 
       return GetMedia200Response(
-        medium: Object.listFromJson(json[r'medium']),
+        medium: Media.listFromJson(json[r'medium']),
       );
     }
     return null;

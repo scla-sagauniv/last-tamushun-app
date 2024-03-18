@@ -1,24 +1,24 @@
 openapi: 3.1.0
-x-stoplight:
-  id: altylcuys382t
 info:
-  title: Brachio
   version: '1.0'
+  title: Brachio
   summary: ''
 servers:
   - url: 'http://localhost:3000'
 paths:
   '/users/{userId}':
-    parameters:
-      - schema:
-          type: integer
-        name: userId
-        in: path
-        required: true
-        description: Id of an existing user.
     get:
       summary: Get User Info by User ID
-      tags: []
+      description: Retrieve the information of the user with the matching user ID.
+      operationId: get-users-userId
+      parameters:
+        - $ref: '#/components/parameters/Authorization'
+        - name: userId
+          in: path
+          description: Id of an existing user.
+          required: true
+          schema:
+            type: integer
       responses:
         '200':
           description: User Found
@@ -29,16 +29,10 @@ paths:
                 properties:
                   id:
                     type: integer
-                    x-stoplight:
-                      id: m28cjc2m49fb3
                   name:
                     type: string
-                    x-stoplight:
-                      id: 45xk4l2430m9p
                   email:
                     type: string
-                    x-stoplight:
-                      id: f7sa9pcgo2cl7
               examples:
                 Example 1:
                   value:
@@ -47,13 +41,39 @@ paths:
                     email: string
         '404':
           description: User Not Found
-      operationId: get-users-userId
-      description: Retrieve the information of the user with the matching user ID.
-      x-stoplight:
-        id: uqtxvwp55j0qq
+      servers:
+        - url: 'http://localhost:3000'
     patch:
       summary: Update User Information
+      description: Update the information of an existing user.
       operationId: patch-users-userId
+      parameters:
+        - $ref: '#/components/parameters/Authorization'
+        - name: userId
+          in: path
+          description: Id of an existing user.
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        description: Patch user properties to update.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                  description: 'If a new email is given, the user''s email verified property will be set to false.'
+            examples:
+              Update Name:
+                value:
+                  name: name
+              Update Email:
+                value:
+                  email: rebecca@gmail.com
       responses:
         '200':
           description: User Updated
@@ -71,8 +91,15 @@ paths:
           description: User Not Found
         '409':
           description: Email Already Taken
-      description: Update the information of an existing user.
+      servers:
+        - url: 'http://localhost:3000'
+  /signup:
+    post:
+      summary: Create New User
+      description: Create a new user.
+      operationId: post-user
       requestBody:
+        description: Post the necessary fields for the API to create a new user.
         content:
           application/json:
             schema:
@@ -80,25 +107,20 @@ paths:
               properties:
                 name:
                   type: string
-                  x-stoplight:
-                    id: p4ubm1ilbku9g
                 email:
                   type: string
-                  description: 'If a new email is given, the user''s email verified property will be set to false.'
+                hashed_password:
+                  type: string
+              required:
+                - name
+                - email
+                - hashed_password
             examples:
-              Update Name:
+              Example 1:
                 value:
-                  name: name
-              Update Email:
-                value:
-                  email: rebecca@gmail.com
-        description: Patch user properties to update.
-      x-stoplight:
-        id: m7ope66kuoywf
-  /signup:
-    post:
-      summary: Create New User
-      operationId: post-user
+                  name: string
+                  email: string
+                  hashed_password: string
       responses:
         '201':
           description: User Created
@@ -109,49 +131,18 @@ paths:
                 properties:
                   token:
                     type: string
-                    x-stoplight:
-                      id: 8kr97jesx01z5
         '400':
           description: Missing Required Information
         '409':
           description: Email Already Taken
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - name
-                - email
-                - hashed_password
-              properties:
-                name:
-                  type: string
-                  x-stoplight:
-                    id: 0hiiiwuxq7wx0
-                email:
-                  type: string
-                  x-stoplight:
-                    id: ahmsccrh67t7o
-                hashed_password:
-                  type: string
-                  x-stoplight:
-                    id: 237xrtywn9vnh
-            examples:
-              Example 1:
-                value:
-                  name: string
-                  email: string
-                  hashed_password: string
-        description: Post the necessary fields for the API to create a new user.
-      description: Create a new user.
-      x-stoplight:
-        id: hd45gduays3lf
-    parameters: []
+      servers:
+        - url: 'http://localhost:3000'
   /media:
     get:
-      summary: Get Media Info
-      tags: []
+      summary: Get Medias
+      operationId: get-media
+      parameters:
+        - $ref: '#/components/parameters/Authorization'
       responses:
         '200':
           description: OK
@@ -161,35 +152,95 @@ paths:
                 type: object
                 properties:
                   medium:
-                    x-stoplight:
-                      id: hie6gpwholc0l
                     type: array
-                    items: {}
+                    items:
+                      $ref: '#/components/schemas/Media'
               examples:
-                Example 2:
+                Example 1:
                   value:
                     medium:
-                      - id: 0
-                        user_id: string
-                        image_url: string
-                        movie_url: string
-                        lat: string
-                        lon: string
-                      - id: 0
-                        user_id: string
-                        image_url: string
-                        movie_url: string
-                        lat: string
-                        lon: string
+                      - id: 100
+                        user_id: 0
+                        movie_url: 'https://www.shutterstock.com/shutterstock/videos/25392752/preview/stock-footage-a-litte-giant-panda-in-the-breeding-center.mp4'
+                        image_url: 'https://http.cat/images/100.jpg'
+                      - id: 101
+                        user_id: 0
+                        movie_url: 'https://www.shutterstock.com/shutterstock/videos/25392743/preview/stock-footage-red-panda-or-lesser-panda-or-red-bear-cat-or-red-cat-bear-in-the-zoo.mp4'
+                        image_url: 'https://http.cat/images/101.jpg'
+                      - id: 102
+                        user_id: 0
+                        movie_url: 'https://www.shutterstock.com/shutterstock/videos/25392761/preview/stock-footage-red-panda-or-lesser-panda-or-red-bear-cat-or-red-cat-bear-in-the-zoo.mp4'
+                        image_url: 'https://http.cat/images/102.jpg'
+                      - id: 103
+                        user_id: 0
+                        movie_url: 'https://www.shutterstock.com/shutterstock/videos/335698/preview/stock-footage-microwave.mp4'
+                        image_url: 'https://http.cat/images/103.jpg'
+                      - id: 200
+                        user_id: 0
+                        movie_url: 'https://www.shutterstock.com/shutterstock/videos/7286/preview/stock-footage-cats-playing.mp4'
+                        image_url: 'https://http.cat/images/200.jpg'
+                      - id: 201
+                        user_id: 0
+                        movie_url: 'https://www.shutterstock.com/shutterstock/videos/17515120/preview/stock-footage-dog-and-cat-facing-off-in-vets-office-s.mp4'
+                        image_url: 'https://http.cat/images/201.jpg'
+                      - id: 202
+                        user_id: 0
+                        movie_url: 'https://www.shutterstock.com/shutterstock/videos/14029958/preview/stock-footage-cat-jumping-on-desk.mp4'
+                        image_url: 'https://http.cat/images/202.jpg'
+                      - id: 203
+                        user_id: 0
+                        movie_url: 'https://www.shutterstock.com/shutterstock/videos/5680961/preview/stock-footage-lion-eating-antelope.mp4'
+                        image_url: 'https://http.cat/images/203.jpg'
+                      - id: 204
+                        user_id: 0
+                        movie_url: 'https://www.shutterstock.com/shutterstock/videos/5683073/preview/stock-footage-lion-eating-antelope.mp4'
+                        image_url: 'https://http.cat/images/204.jpg'
+                      - id: 205
+                        user_id: 0
+                        movie_url: 'https://www.shutterstock.com/shutterstock/videos/17513908/preview/stock-footage-kitten-walking-across-mantel-in-front-of-clock-s.mp4'
+                        image_url: 'https://http.cat/images/205.jpg'
+                      - id: 206
+                        user_id: 0
+                        movie_url: 'https://www.shutterstock.com/shutterstock/videos/9631691/preview/stock-footage-dog-chihuahua-playing-in-a-field.mp4'
+                        image_url: 'https://http.cat/images/206.jpg'
+                      - id: 207
+                        user_id: 0
+                        movie_url: 'https://www.shutterstock.com/shutterstock/videos/65395/preview/stock-footage-cat-sitting-on-a-carved-pumpkin-with-blinking-faces.mp4'
+                        image_url: 'https://http.cat/images/207.jpg'
+                      - id: 208
+                        user_id: 0
+                        movie_url: 'https://www.shutterstock.com/shutterstock/videos/7291/preview/stock-footage-cats-playing.mp4'
+                        image_url: 'https://http.cat/images/208.jpg'
         '404':
           description: Not Found
-      operationId: get-media
-      x-stoplight:
-        id: mjp2yqsnm5j00
-      parameters: []
+      servers:
+        - url: 'http://localhost:3000'
     post:
       summary: Create New Media
-      tags: []
+      operationId: post-media
+      parameters:
+        - $ref: '#/components/parameters/Authorization'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                image_url:
+                  type: string
+                movie_url:
+                  type: string
+                lat:
+                  type: integer
+                lon:
+                  type: integer
+            examples:
+              Example 1:
+                value:
+                  image_url: string
+                  movie_url: string
+                  lat: 0
+                  lon: 0
       responses:
         '201':
           description: Created
@@ -200,22 +251,40 @@ paths:
               examples:
                 Example 1:
                   value:
-                    medium:
-                      - id: 1
-                        user_id: 1
-                        image_url: string
-                        movie_url: string
-                        lat: 0
-                        lon: 0
-                      - id: 2
-                        user_id: 1
-                        image_url: string
-                        movie_url: string
-                        lat: 0
-                        lon: 0
-      operationId: post-media
-      x-stoplight:
-        id: tmdk0ju8q9vv6
+                    id: 100
+                    user_id: 0
+                    movie_url: 'https://www.shutterstock.com/shutterstock/videos/25392752/preview/stock-footage-a-litte-giant-panda-in-the-breeding-center.mp4'
+                    image_url: 'https://http.cat/images/100.jpg'
+      servers:
+        - url: 'http://localhost:3000'
+  '/media/{mediaId}':
+    delete:
+      summary: Delete Media
+      operationId: delete-medium-mediaId
+      parameters:
+        - $ref: '#/components/parameters/Authorization'
+        - name: mediaId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: No Content
+        '404':
+          description: Not Found
+      servers:
+        - url: 'http://localhost:3000'
+    patch:
+      summary: Update Media Info
+      operationId: patch-medium-mediaId
+      parameters:
+        - $ref: '#/components/parameters/Authorization'
+        - name: mediaId
+          in: path
+          required: true
+          schema:
+            type: string
       requestBody:
         content:
           application/json:
@@ -224,20 +293,12 @@ paths:
               properties:
                 image_url:
                   type: string
-                  x-stoplight:
-                    id: tm7l3pdstk9b7
                 movie_url:
                   type: string
-                  x-stoplight:
-                    id: 5efdazq5eqffq
                 lat:
                   type: integer
-                  x-stoplight:
-                    id: jwluf4uststft
                 lon:
                   type: integer
-                  x-stoplight:
-                    id: wanmowld6rv60
             examples:
               Example 1:
                 value:
@@ -245,28 +306,6 @@ paths:
                   movie_url: string
                   lat: 0
                   lon: 0
-    parameters: []
-  '/media/{mediaId}':
-    parameters:
-      - schema:
-          type: string
-        name: mediaId
-        in: path
-        required: true
-    delete:
-      summary: Delete Media
-      tags: []
-      responses:
-        '204':
-          description: No Content
-        '404':
-          description: Not Found
-      operationId: delete-medium-mediaId
-      x-stoplight:
-        id: xlysklwg8w1e7
-    patch:
-      summary: Update Media Info
-      tags: []
       responses:
         '200':
           description: OK
@@ -278,49 +317,32 @@ paths:
                 Example 1:
                   value:
                     id: 0
-                    user_id: string
+                    user_id: 0
                     image_url: string
                     movie_url: string
-                    lat: string
-                    lon: string
         '400':
           description: Bad Request
-      operationId: patch-medium-mediaId
-      x-stoplight:
-        id: pifv0bih1zt4t
+      servers:
+        - url: 'http://localhost:3000'
+  /login:
+    post:
+      summary: Login
+      operationId: post-login
       requestBody:
         content:
           application/json:
             schema:
               type: object
               properties:
-                image_url:
+                email:
                   type: string
-                  x-stoplight:
-                    id: 1np77bh2gy1p4
-                movie_url:
+                password:
                   type: string
-                  x-stoplight:
-                    id: haun73k7dcgtp
-                lat:
-                  type: integer
-                  x-stoplight:
-                    id: evnzrrjmsfigk
-                lon:
-                  type: integer
-                  x-stoplight:
-                    id: v2tzw13b1ok1s
             examples:
               Example 1:
                 value:
-                  image_url: string
-                  movie_url: string
-                  lat: 0
-                  lon: 0
-  /login:
-    post:
-      summary: Login
-      tags: []
+                  email: hoge@gmail.com
+                  password: ecb666d778725ec97307044d642bf4d160aabb76f56c0069c71ea25b1e926825
       responses:
         '200':
           description: OK
@@ -331,111 +353,99 @@ paths:
                 properties:
                   token:
                     type: string
-                    x-stoplight:
-                      id: spj5dv253ad2q
               examples:
                 Example 1:
                   value:
                     token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjAwMSIsIm5hbWUiOiJoYWtreSIsImVtYWlsIjoiaGFra3lAZW1haWwuY29tIn0.AvLXzyxzX4Jy0rzDcHWWQeMC57N4dGqf6sXyYQOkyEg
         '404':
           description: Not Found
-      operationId: post-login
-      x-stoplight:
-        id: cl502l7hlhvdn
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                email:
-                  type: string
-                  x-stoplight:
-                    id: 1ybb65l2awn7m
-                password:
-                  type: string
-                  x-stoplight:
-                    id: cjksd5e3q9kru
-            examples:
-              Example 1:
-                value:
-                  email: hoge@gmail.com
-                  password: ecb666d778725ec97307044d642bf4d160aabb76f56c0069c71ea25b1e926825
-    parameters: []
+      servers:
+        - url: 'http://localhost:3000'
 components:
+  parameters:
+    Authorization:
+      name: Authorization
+      in: header
+      description: 'format: [Bearer <token>]'
+      required: true
+      schema:
+        type: string
   schemas:
-    User:
-      title: User
-      type: object
-      examples:
-        - id: 1
-          name: hoge
-          email: hoge@gmail.com
-          hashed_password: ecb666d778725ec97307044d642bf4d160aabb76f56c0069c71ea25b1e926825
-      x-stoplight:
-        id: g4nkvzud6e9du
-      required:
-        - id
-        - name
-        - email
-        - hashed_password
-      properties:
-        id:
-          type: integer
-          description: Unique identifier for the given user.
-          x-stoplight:
-            id: cql6amkua65zu
-        name:
-          type: string
-          x-stoplight:
-            id: ymixwmphppjhr
-        email:
-          type: string
-          format: email
-          x-stoplight:
-            id: hcuka6cri5l9f
-        hashed_password:
-          type: string
-          x-stoplight:
-            id: 83x49tjnrcoka
     Media:
-      title: Media
-      x-stoplight:
-        id: msyk1m161kwq7
       type: object
-      required:
-        - user_id
-        - image_url
+      title: Media
       properties:
         id:
           type: integer
-          x-stoplight:
-            id: qj0hqiejzjnhl
         user_id:
           type: integer
-          x-stoplight:
-            id: w6v0u4sqwpwcm
         image_url:
           type: string
-          x-stoplight:
-            id: 96rx865myi5nf
         movie_url:
           type: string
-          x-stoplight:
-            id: hzwkcxyma7iiu
         lat:
-          type: integer
-          x-stoplight:
-            id: z97bw2nls8lum
+          type:
+            - integer
+            - 'null'
         lon:
-          type: integer
-          x-stoplight:
-            id: ozazezcyhc6ub
+          type:
+            - integer
+            - 'null'
+      required:
+        - id
+        - user_id
+        - image_url
+        - movie_url
       examples:
-        - id: 0
+        - id: 100
           user_id: 0
-          image_url: 'http://hogehoge.com'
-          movie_url: 'http://hogehoge.com'
-          lat: 35.298739874
-          lon: 136.02098938
-  responses: {}
+          movie_url: 'https://www.shutterstock.com/shutterstock/videos/25392752/preview/stock-footage-a-litte-giant-panda-in-the-breeding-center.mp4'
+          image_url: 'https://http.cat/images/100.jpg'
+        - id: 101
+          user_id: 0
+          movie_url: 'https://www.shutterstock.com/shutterstock/videos/25392743/preview/stock-footage-red-panda-or-lesser-panda-or-red-bear-cat-or-red-cat-bear-in-the-zoo.mp4'
+          image_url: 'https://http.cat/images/101.jpg'
+        - id: 102
+          user_id: 0
+          movie_url: 'https://www.shutterstock.com/shutterstock/videos/25392761/preview/stock-footage-red-panda-or-lesser-panda-or-red-bear-cat-or-red-cat-bear-in-the-zoo.mp4'
+          image_url: 'https://http.cat/images/102.jpg'
+        - id: 103
+          user_id: 0
+          movie_url: 'https://www.shutterstock.com/shutterstock/videos/335698/preview/stock-footage-microwave.mp4'
+          image_url: 'https://http.cat/images/103.jpg'
+        - id: 200
+          user_id: 0
+          movie_url: 'https://www.shutterstock.com/shutterstock/videos/7286/preview/stock-footage-cats-playing.mp4'
+          image_url: 'https://http.cat/images/200.jpg'
+        - id: 201
+          user_id: 0
+          movie_url: 'https://www.shutterstock.com/shutterstock/videos/17515120/preview/stock-footage-dog-and-cat-facing-off-in-vets-office-s.mp4'
+          image_url: 'https://http.cat/images/201.jpg'
+        - id: 202
+          user_id: 0
+          movie_url: 'https://www.shutterstock.com/shutterstock/videos/14029958/preview/stock-footage-cat-jumping-on-desk.mp4'
+          image_url: 'https://http.cat/images/202.jpg'
+        - id: 203
+          user_id: 0
+          movie_url: 'https://www.shutterstock.com/shutterstock/videos/5680961/preview/stock-footage-lion-eating-antelope.mp4'
+          image_url: 'https://http.cat/images/203.jpg'
+        - id: 204
+          user_id: 0
+          movie_url: 'https://www.shutterstock.com/shutterstock/videos/5683073/preview/stock-footage-lion-eating-antelope.mp4'
+          image_url: 'https://http.cat/images/204.jpg'
+        - id: 205
+          user_id: 0
+          movie_url: 'https://www.shutterstock.com/shutterstock/videos/17513908/preview/stock-footage-kitten-walking-across-mantel-in-front-of-clock-s.mp4'
+          image_url: 'https://http.cat/images/205.jpg'
+        - id: 206
+          user_id: 0
+          movie_url: 'https://www.shutterstock.com/shutterstock/videos/9631691/preview/stock-footage-dog-chihuahua-playing-in-a-field.mp4'
+          image_url: 'https://http.cat/images/206.jpg'
+        - id: 207
+          user_id: 0
+          movie_url: 'https://www.shutterstock.com/shutterstock/videos/65395/preview/stock-footage-cat-sitting-on-a-carved-pumpkin-with-blinking-faces.mp4'
+          image_url: 'https://http.cat/images/207.jpg'
+        - id: 208
+          user_id: 0
+          movie_url: 'https://www.shutterstock.com/shutterstock/videos/7291/preview/stock-footage-cats-playing.mp4'
+          image_url: 'https://http.cat/images/208.jpg'

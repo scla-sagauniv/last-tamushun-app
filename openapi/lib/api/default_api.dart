@@ -22,8 +22,11 @@ class DefaultApi {
   ///
   /// Parameters:
   ///
+  /// * [String] authorization (required):
+  ///   format: [Bearer <token>]
+  ///
   /// * [String] mediaId (required):
-  Future<Response> deleteMediumMediaIdWithHttpInfo(String mediaId,) async {
+  Future<Response> deleteMediumMediaIdWithHttpInfo(String authorization, String mediaId,) async {
     // ignore: prefer_const_declarations
     final path = r'/media/{mediaId}'
       .replaceAll('{mediaId}', mediaId);
@@ -34,6 +37,8 @@ class DefaultApi {
     final queryParams = <QueryParam>[];
     final headerParams = <String, String>{};
     final formParams = <String, String>{};
+
+    headerParams[r'Authorization'] = parameterToString(authorization);
 
     const contentTypes = <String>[];
 
@@ -53,18 +58,26 @@ class DefaultApi {
   ///
   /// Parameters:
   ///
+  /// * [String] authorization (required):
+  ///   format: [Bearer <token>]
+  ///
   /// * [String] mediaId (required):
-  Future<void> deleteMediumMediaId(String mediaId,) async {
-    final response = await deleteMediumMediaIdWithHttpInfo(mediaId,);
+  Future<void> deleteMediumMediaId(String authorization, String mediaId,) async {
+    final response = await deleteMediumMediaIdWithHttpInfo(authorization, mediaId,);
     if (response.statusCode >= HttpStatus.badRequest) {
       throw ApiException(response.statusCode, await _decodeBodyBytes(response));
     }
   }
 
-  /// Get Media Info
+  /// Get Medias
   ///
   /// Note: This method returns the HTTP [Response].
-  Future<Response> getMediaWithHttpInfo() async {
+  ///
+  /// Parameters:
+  ///
+  /// * [String] authorization (required):
+  ///   format: [Bearer <token>]
+  Future<Response> getMediaWithHttpInfo(String authorization,) async {
     // ignore: prefer_const_declarations
     final path = r'/media';
 
@@ -74,6 +87,8 @@ class DefaultApi {
     final queryParams = <QueryParam>[];
     final headerParams = <String, String>{};
     final formParams = <String, String>{};
+
+    headerParams[r'Authorization'] = parameterToString(authorization);
 
     const contentTypes = <String>[];
 
@@ -89,9 +104,14 @@ class DefaultApi {
     );
   }
 
-  /// Get Media Info
-  Future<GetMedia200Response?> getMedia() async {
-    final response = await getMediaWithHttpInfo();
+  /// Get Medias
+  ///
+  /// Parameters:
+  ///
+  /// * [String] authorization (required):
+  ///   format: [Bearer <token>]
+  Future<GetMedia200Response?> getMedia(String authorization,) async {
+    final response = await getMediaWithHttpInfo(authorization,);
     if (response.statusCode >= HttpStatus.badRequest) {
       throw ApiException(response.statusCode, await _decodeBodyBytes(response));
     }
@@ -113,9 +133,12 @@ class DefaultApi {
   ///
   /// Parameters:
   ///
+  /// * [String] authorization (required):
+  ///   format: [Bearer <token>]
+  ///
   /// * [int] userId (required):
   ///   Id of an existing user.
-  Future<Response> getUsersUserIdWithHttpInfo(int userId,) async {
+  Future<Response> getUsersUserIdWithHttpInfo(String authorization, int userId,) async {
     // ignore: prefer_const_declarations
     final path = r'/users/{userId}'
       .replaceAll('{userId}', userId.toString());
@@ -126,6 +149,8 @@ class DefaultApi {
     final queryParams = <QueryParam>[];
     final headerParams = <String, String>{};
     final formParams = <String, String>{};
+
+    headerParams[r'Authorization'] = parameterToString(authorization);
 
     const contentTypes = <String>[];
 
@@ -147,10 +172,13 @@ class DefaultApi {
   ///
   /// Parameters:
   ///
+  /// * [String] authorization (required):
+  ///   format: [Bearer <token>]
+  ///
   /// * [int] userId (required):
   ///   Id of an existing user.
-  Future<GetUsersUserId200Response?> getUsersUserId(int userId,) async {
-    final response = await getUsersUserIdWithHttpInfo(userId,);
+  Future<GetUsersUserId200Response?> getUsersUserId(String authorization, int userId,) async {
+    final response = await getUsersUserIdWithHttpInfo(authorization, userId,);
     if (response.statusCode >= HttpStatus.badRequest) {
       throw ApiException(response.statusCode, await _decodeBodyBytes(response));
     }
@@ -170,20 +198,25 @@ class DefaultApi {
   ///
   /// Parameters:
   ///
+  /// * [String] authorization (required):
+  ///   format: [Bearer <token>]
+  ///
   /// * [String] mediaId (required):
   ///
-  /// * [PatchMediumMediaIdRequest] patchMediumMediaIdRequest:
-  Future<Response> patchMediumMediaIdWithHttpInfo(String mediaId, { PatchMediumMediaIdRequest? patchMediumMediaIdRequest, }) async {
+  /// * [PostMediaRequest] postMediaRequest:
+  Future<Response> patchMediumMediaIdWithHttpInfo(String authorization, String mediaId, { PostMediaRequest? postMediaRequest, }) async {
     // ignore: prefer_const_declarations
     final path = r'/media/{mediaId}'
       .replaceAll('{mediaId}', mediaId);
 
     // ignore: prefer_final_locals
-    Object? postBody = patchMediumMediaIdRequest;
+    Object? postBody = postMediaRequest;
 
     final queryParams = <QueryParam>[];
     final headerParams = <String, String>{};
     final formParams = <String, String>{};
+
+    headerParams[r'Authorization'] = parameterToString(authorization);
 
     const contentTypes = <String>['application/json'];
 
@@ -203,11 +236,14 @@ class DefaultApi {
   ///
   /// Parameters:
   ///
+  /// * [String] authorization (required):
+  ///   format: [Bearer <token>]
+  ///
   /// * [String] mediaId (required):
   ///
-  /// * [PatchMediumMediaIdRequest] patchMediumMediaIdRequest:
-  Future<Media?> patchMediumMediaId(String mediaId, { PatchMediumMediaIdRequest? patchMediumMediaIdRequest, }) async {
-    final response = await patchMediumMediaIdWithHttpInfo(mediaId,  patchMediumMediaIdRequest: patchMediumMediaIdRequest, );
+  /// * [PostMediaRequest] postMediaRequest:
+  Future<Media?> patchMediumMediaId(String authorization, String mediaId, { PostMediaRequest? postMediaRequest, }) async {
+    final response = await patchMediumMediaIdWithHttpInfo(authorization, mediaId,  postMediaRequest: postMediaRequest, );
     if (response.statusCode >= HttpStatus.badRequest) {
       throw ApiException(response.statusCode, await _decodeBodyBytes(response));
     }
@@ -229,12 +265,15 @@ class DefaultApi {
   ///
   /// Parameters:
   ///
+  /// * [String] authorization (required):
+  ///   format: [Bearer <token>]
+  ///
   /// * [int] userId (required):
   ///   Id of an existing user.
   ///
   /// * [PatchUsersUserIdRequest] patchUsersUserIdRequest:
   ///   Patch user properties to update.
-  Future<Response> patchUsersUserIdWithHttpInfo(int userId, { PatchUsersUserIdRequest? patchUsersUserIdRequest, }) async {
+  Future<Response> patchUsersUserIdWithHttpInfo(String authorization, int userId, { PatchUsersUserIdRequest? patchUsersUserIdRequest, }) async {
     // ignore: prefer_const_declarations
     final path = r'/users/{userId}'
       .replaceAll('{userId}', userId.toString());
@@ -245,6 +284,8 @@ class DefaultApi {
     final queryParams = <QueryParam>[];
     final headerParams = <String, String>{};
     final formParams = <String, String>{};
+
+    headerParams[r'Authorization'] = parameterToString(authorization);
 
     const contentTypes = <String>['application/json'];
 
@@ -266,13 +307,16 @@ class DefaultApi {
   ///
   /// Parameters:
   ///
+  /// * [String] authorization (required):
+  ///   format: [Bearer <token>]
+  ///
   /// * [int] userId (required):
   ///   Id of an existing user.
   ///
   /// * [PatchUsersUserIdRequest] patchUsersUserIdRequest:
   ///   Patch user properties to update.
-  Future<Object?> patchUsersUserId(int userId, { PatchUsersUserIdRequest? patchUsersUserIdRequest, }) async {
-    final response = await patchUsersUserIdWithHttpInfo(userId,  patchUsersUserIdRequest: patchUsersUserIdRequest, );
+  Future<Object?> patchUsersUserId(String authorization, int userId, { PatchUsersUserIdRequest? patchUsersUserIdRequest, }) async {
+    final response = await patchUsersUserIdWithHttpInfo(authorization, userId,  patchUsersUserIdRequest: patchUsersUserIdRequest, );
     if (response.statusCode >= HttpStatus.badRequest) {
       throw ApiException(response.statusCode, await _decodeBodyBytes(response));
     }
@@ -323,7 +367,7 @@ class DefaultApi {
   /// Parameters:
   ///
   /// * [PostLoginRequest] postLoginRequest:
-  Future<PostLogin200Response?> postLogin({ PostLoginRequest? postLoginRequest, }) async {
+  Future<PostUser201Response?> postLogin({ PostLoginRequest? postLoginRequest, }) async {
     final response = await postLoginWithHttpInfo( postLoginRequest: postLoginRequest, );
     if (response.statusCode >= HttpStatus.badRequest) {
       throw ApiException(response.statusCode, await _decodeBodyBytes(response));
@@ -332,7 +376,7 @@ class DefaultApi {
     // At the time of writing this, `dart:convert` will throw an "Unexpected end of input"
     // FormatException when trying to decode an empty string.
     if (response.body.isNotEmpty && response.statusCode != HttpStatus.noContent) {
-      return await apiClient.deserializeAsync(await _decodeBodyBytes(response), 'PostLogin200Response',) as PostLogin200Response;
+      return await apiClient.deserializeAsync(await _decodeBodyBytes(response), 'PostUser201Response',) as PostUser201Response;
     
     }
     return null;
@@ -344,8 +388,11 @@ class DefaultApi {
   ///
   /// Parameters:
   ///
+  /// * [String] authorization (required):
+  ///   format: [Bearer <token>]
+  ///
   /// * [PostMediaRequest] postMediaRequest:
-  Future<Response> postMediaWithHttpInfo({ PostMediaRequest? postMediaRequest, }) async {
+  Future<Response> postMediaWithHttpInfo(String authorization, { PostMediaRequest? postMediaRequest, }) async {
     // ignore: prefer_const_declarations
     final path = r'/media';
 
@@ -355,6 +402,8 @@ class DefaultApi {
     final queryParams = <QueryParam>[];
     final headerParams = <String, String>{};
     final formParams = <String, String>{};
+
+    headerParams[r'Authorization'] = parameterToString(authorization);
 
     const contentTypes = <String>['application/json'];
 
@@ -374,9 +423,12 @@ class DefaultApi {
   ///
   /// Parameters:
   ///
+  /// * [String] authorization (required):
+  ///   format: [Bearer <token>]
+  ///
   /// * [PostMediaRequest] postMediaRequest:
-  Future<Media?> postMedia({ PostMediaRequest? postMediaRequest, }) async {
-    final response = await postMediaWithHttpInfo( postMediaRequest: postMediaRequest, );
+  Future<Media?> postMedia(String authorization, { PostMediaRequest? postMediaRequest, }) async {
+    final response = await postMediaWithHttpInfo(authorization,  postMediaRequest: postMediaRequest, );
     if (response.statusCode >= HttpStatus.badRequest) {
       throw ApiException(response.statusCode, await _decodeBodyBytes(response));
     }

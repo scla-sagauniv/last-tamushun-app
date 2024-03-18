@@ -13,48 +13,24 @@ part of openapi.api;
 class Media {
   /// Returns a new [Media] instance.
   Media({
-    this.id,
+    required this.id,
     required this.userId,
     required this.imageUrl,
-    this.movieUrl,
+    required this.movieUrl,
     this.lat,
     this.lon,
   });
 
-  ///
-  /// Please note: This property should have been non-nullable! Since the specification file
-  /// does not include a default value (using the "default:" property), however, the generated
-  /// source code must fall back to having a nullable type.
-  /// Consider adding a "default:" property in the specification file to hide this note.
-  ///
-  int? id;
+  int id;
 
   int userId;
 
   String imageUrl;
 
-  ///
-  /// Please note: This property should have been non-nullable! Since the specification file
-  /// does not include a default value (using the "default:" property), however, the generated
-  /// source code must fall back to having a nullable type.
-  /// Consider adding a "default:" property in the specification file to hide this note.
-  ///
-  String? movieUrl;
+  String movieUrl;
 
-  ///
-  /// Please note: This property should have been non-nullable! Since the specification file
-  /// does not include a default value (using the "default:" property), however, the generated
-  /// source code must fall back to having a nullable type.
-  /// Consider adding a "default:" property in the specification file to hide this note.
-  ///
   int? lat;
 
-  ///
-  /// Please note: This property should have been non-nullable! Since the specification file
-  /// does not include a default value (using the "default:" property), however, the generated
-  /// source code must fall back to having a nullable type.
-  /// Consider adding a "default:" property in the specification file to hide this note.
-  ///
   int? lon;
 
   @override
@@ -69,10 +45,10 @@ class Media {
   @override
   int get hashCode =>
     // ignore: unnecessary_parenthesis
-    (id == null ? 0 : id!.hashCode) +
+    (id.hashCode) +
     (userId.hashCode) +
     (imageUrl.hashCode) +
-    (movieUrl == null ? 0 : movieUrl!.hashCode) +
+    (movieUrl.hashCode) +
     (lat == null ? 0 : lat!.hashCode) +
     (lon == null ? 0 : lon!.hashCode);
 
@@ -81,18 +57,10 @@ class Media {
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
-    if (this.id != null) {
       json[r'id'] = this.id;
-    } else {
-      json[r'id'] = null;
-    }
       json[r'user_id'] = this.userId;
       json[r'image_url'] = this.imageUrl;
-    if (this.movieUrl != null) {
       json[r'movie_url'] = this.movieUrl;
-    } else {
-      json[r'movie_url'] = null;
-    }
     if (this.lat != null) {
       json[r'lat'] = this.lat;
     } else {
@@ -125,10 +93,10 @@ class Media {
       }());
 
       return Media(
-        id: mapValueOfType<int>(json, r'id'),
+        id: mapValueOfType<int>(json, r'id')!,
         userId: mapValueOfType<int>(json, r'user_id')!,
         imageUrl: mapValueOfType<String>(json, r'image_url')!,
-        movieUrl: mapValueOfType<String>(json, r'movie_url'),
+        movieUrl: mapValueOfType<String>(json, r'movie_url')!,
         lat: mapValueOfType<int>(json, r'lat'),
         lon: mapValueOfType<int>(json, r'lon'),
       );
@@ -178,8 +146,10 @@ class Media {
 
   /// The list of required keys that must be present in a JSON.
   static const requiredKeys = <String>{
+    'id',
     'user_id',
     'image_url',
+    'movie_url',
   };
 }
 

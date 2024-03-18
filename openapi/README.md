@@ -42,10 +42,11 @@ import 'package:openapi/api.dart';
 
 
 final api_instance = DefaultApi();
+final authorization = authorization_example; // String | format: [Bearer <token>]
 final mediaId = mediaId_example; // String | 
 
 try {
-    api_instance.deleteMediumMediaId(mediaId);
+    api_instance.deleteMediumMediaId(authorization, mediaId);
 } catch (e) {
     print('Exception when calling DefaultApi->deleteMediumMediaId: $e\n');
 }
@@ -59,7 +60,7 @@ All URIs are relative to *http://localhost:3000*
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
 *DefaultApi* | [**deleteMediumMediaId**](doc//DefaultApi.md#deletemediummediaid) | **DELETE** /media/{mediaId} | Delete Media
-*DefaultApi* | [**getMedia**](doc//DefaultApi.md#getmedia) | **GET** /media | Get Media Info
+*DefaultApi* | [**getMedia**](doc//DefaultApi.md#getmedia) | **GET** /media | Get Medias
 *DefaultApi* | [**getUsersUserId**](doc//DefaultApi.md#getusersuserid) | **GET** /users/{userId} | Get User Info by User ID
 *DefaultApi* | [**patchMediumMediaId**](doc//DefaultApi.md#patchmediummediaid) | **PATCH** /media/{mediaId} | Update Media Info
 *DefaultApi* | [**patchUsersUserId**](doc//DefaultApi.md#patchusersuserid) | **PATCH** /users/{userId} | Update User Information
@@ -73,14 +74,11 @@ Class | Method | HTTP request | Description
  - [GetMedia200Response](doc//GetMedia200Response.md)
  - [GetUsersUserId200Response](doc//GetUsersUserId200Response.md)
  - [Media](doc//Media.md)
- - [PatchMediumMediaIdRequest](doc//PatchMediumMediaIdRequest.md)
  - [PatchUsersUserIdRequest](doc//PatchUsersUserIdRequest.md)
- - [PostLogin200Response](doc//PostLogin200Response.md)
  - [PostLoginRequest](doc//PostLoginRequest.md)
  - [PostMediaRequest](doc//PostMediaRequest.md)
  - [PostUser201Response](doc//PostUser201Response.md)
  - [PostUserRequest](doc//PostUserRequest.md)
- - [User](doc//User.md)
 
 
 ## Documentation For Authorization

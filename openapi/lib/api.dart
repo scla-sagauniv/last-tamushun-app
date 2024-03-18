@@ -33,14 +33,11 @@ part 'api/default_api.dart';
 part 'model/get_media200_response.dart';
 part 'model/get_users_user_id200_response.dart';
 part 'model/media.dart';
-part 'model/patch_medium_media_id_request.dart';
 part 'model/patch_users_user_id_request.dart';
-part 'model/post_login200_response.dart';
 part 'model/post_login_request.dart';
 part 'model/post_media_request.dart';
 part 'model/post_user201_response.dart';
 part 'model/post_user_request.dart';
-part 'model/user.dart';
 
 
 /// An [ApiClient] instance that uses the default values obtained from

@@ -8,10 +8,10 @@ import 'package:openapi/api.dart';
 ## Properties
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**id** | **int** |  | [optional] 
+**id** | **int** |  | 
 **userId** | **int** |  | 
 **imageUrl** | **String** |  | 
-**movieUrl** | **String** |  | [optional] 
+**movieUrl** | **String** |  | 
 **lat** | **int** |  | [optional] 
 **lon** | **int** |  | [optional] 
 

@@ -10,7 +10,7 @@ All URIs are relative to *http://localhost:3000*
 Method | HTTP request | Description
 ------------- | ------------- | -------------
 [**deleteMediumMediaId**](DefaultApi.md#deletemediummediaid) | **DELETE** /media/{mediaId} | Delete Media
-[**getMedia**](DefaultApi.md#getmedia) | **GET** /media | Get Media Info
+[**getMedia**](DefaultApi.md#getmedia) | **GET** /media | Get Medias
 [**getUsersUserId**](DefaultApi.md#getusersuserid) | **GET** /users/{userId} | Get User Info by User ID
 [**patchMediumMediaId**](DefaultApi.md#patchmediummediaid) | **PATCH** /media/{mediaId} | Update Media Info
 [**patchUsersUserId**](DefaultApi.md#patchusersuserid) | **PATCH** /users/{userId} | Update User Information
@@ -20,7 +20,7 @@ Method | HTTP request | Description
 
 
 # **deleteMediumMediaId**
-> deleteMediumMediaId(mediaId)
+> deleteMediumMediaId(authorization, mediaId)
 
 Delete Media
 
@@ -29,10 +29,11 @@ Delete Media
 import 'package:openapi/api.dart';
 
 final api_instance = DefaultApi();
+final authorization = authorization_example; // String | format: [Bearer <token>]
 final mediaId = mediaId_example; // String | 
 
 try {
-    api_instance.deleteMediumMediaId(mediaId);
+    api_instance.deleteMediumMediaId(authorization, mediaId);
 } catch (e) {
     print('Exception when calling DefaultApi->deleteMediumMediaId: $e\n');
 }
@@ -42,6 +43,7 @@ try {
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
+ **authorization** | **String**| format: [Bearer <token>] | 
  **mediaId** | **String**|  | 
 
 ### Return type
@@ -60,18 +62,19 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **getMedia**
-> GetMedia200Response getMedia()
+> GetMedia200Response getMedia(authorization)
 
-Get Media Info
+Get Medias
 
 ### Example
 ```dart
 import 'package:openapi/api.dart';
 
 final api_instance = DefaultApi();
+final authorization = authorization_example; // String | format: [Bearer <token>]
 
 try {
-    final result = api_instance.getMedia();
+    final result = api_instance.getMedia(authorization);
     print(result);
 } catch (e) {
     print('Exception when calling DefaultApi->getMedia: $e\n');
@@ -79,7 +82,10 @@ try {
 ```
 
 ### Parameters
-This endpoint does not need any parameter.
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **authorization** | **String**| format: [Bearer <token>] | 
 
 ### Return type
 
@@ -97,7 +103,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **getUsersUserId**
-> GetUsersUserId200Response getUsersUserId(userId)
+> GetUsersUserId200Response getUsersUserId(authorization, userId)
 
 Get User Info by User ID
 
@@ -108,10 +114,11 @@ Retrieve the information of the user with the matching user ID.
 import 'package:openapi/api.dart';
 
 final api_instance = DefaultApi();
+final authorization = authorization_example; // String | format: [Bearer <token>]
 final userId = 56; // int | Id of an existing user.
 
 try {
-    final result = api_instance.getUsersUserId(userId);
+    final result = api_instance.getUsersUserId(authorization, userId);
     print(result);
 } catch (e) {
     print('Exception when calling DefaultApi->getUsersUserId: $e\n');
@@ -122,6 +129,7 @@ try {
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
+ **authorization** | **String**| format: [Bearer <token>] | 
  **userId** | **int**| Id of an existing user. | 
 
 ### Return type
@@ -140,7 +148,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **patchMediumMediaId**
-> Media patchMediumMediaId(mediaId, patchMediumMediaIdRequest)
+> Media patchMediumMediaId(authorization, mediaId, postMediaRequest)
 
 Update Media Info
 
@@ -149,11 +157,12 @@ Update Media Info
 import 'package:openapi/api.dart';
 
 final api_instance = DefaultApi();
+final authorization = authorization_example; // String | format: [Bearer <token>]
 final mediaId = mediaId_example; // String | 
-final patchMediumMediaIdRequest = PatchMediumMediaIdRequest(); // PatchMediumMediaIdRequest | 
+final postMediaRequest = PostMediaRequest(); // PostMediaRequest | 
 
 try {
-    final result = api_instance.patchMediumMediaId(mediaId, patchMediumMediaIdRequest);
+    final result = api_instance.patchMediumMediaId(authorization, mediaId, postMediaRequest);
     print(result);
 } catch (e) {
     print('Exception when calling DefaultApi->patchMediumMediaId: $e\n');
@@ -164,8 +173,9 @@ try {
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
+ **authorization** | **String**| format: [Bearer <token>] | 
  **mediaId** | **String**|  | 
- **patchMediumMediaIdRequest** | [**PatchMediumMediaIdRequest**](PatchMediumMediaIdRequest.md)|  | [optional] 
+ **postMediaRequest** | [**PostMediaRequest**](PostMediaRequest.md)|  | [optional] 
 
 ### Return type
 
@@ -183,7 +193,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **patchUsersUserId**
-> Object patchUsersUserId(userId, patchUsersUserIdRequest)
+> Object patchUsersUserId(authorization, userId, patchUsersUserIdRequest)
 
 Update User Information
 
@@ -194,11 +204,12 @@ Update the information of an existing user.
 import 'package:openapi/api.dart';
 
 final api_instance = DefaultApi();
+final authorization = authorization_example; // String | format: [Bearer <token>]
 final userId = 56; // int | Id of an existing user.
 final patchUsersUserIdRequest = PatchUsersUserIdRequest(); // PatchUsersUserIdRequest | Patch user properties to update.
 
 try {
-    final result = api_instance.patchUsersUserId(userId, patchUsersUserIdRequest);
+    final result = api_instance.patchUsersUserId(authorization, userId, patchUsersUserIdRequest);
     print(result);
 } catch (e) {
     print('Exception when calling DefaultApi->patchUsersUserId: $e\n');
@@ -209,6 +220,7 @@ try {
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
+ **authorization** | **String**| format: [Bearer <token>] | 
  **userId** | **int**| Id of an existing user. | 
  **patchUsersUserIdRequest** | [**PatchUsersUserIdRequest**](PatchUsersUserIdRequest.md)| Patch user properties to update. | [optional] 
 
@@ -228,7 +240,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **postLogin**
-> PostLogin200Response postLogin(postLoginRequest)
+> PostUser201Response postLogin(postLoginRequest)
 
 Login
 
@@ -255,7 +267,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**PostLogin200Response**](PostLogin200Response.md)
+[**PostUser201Response**](PostUser201Response.md)
 
 ### Authorization
 
@@ -269,7 +281,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **postMedia**
-> Media postMedia(postMediaRequest)
+> Media postMedia(authorization, postMediaRequest)
 
 Create New Media
 
@@ -278,10 +290,11 @@ Create New Media
 import 'package:openapi/api.dart';
 
 final api_instance = DefaultApi();
+final authorization = authorization_example; // String | format: [Bearer <token>]
 final postMediaRequest = PostMediaRequest(); // PostMediaRequest | 
 
 try {
-    final result = api_instance.postMedia(postMediaRequest);
+    final result = api_instance.postMedia(authorization, postMediaRequest);
     print(result);
 } catch (e) {
     print('Exception when calling DefaultApi->postMedia: $e\n');
@@ -292,6 +305,7 @@ try {
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
+ **authorization** | **String**| format: [Bearer <token>] | 
  **postMediaRequest** | [**PostMediaRequest**](PostMediaRequest.md)|  | [optional] 
 
 ### Return type

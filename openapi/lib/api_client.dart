@@ -188,12 +188,8 @@ class ApiClient {
           return GetUsersUserId200Response.fromJson(value);
         case 'Media':
           return Media.fromJson(value);
-        case 'PatchMediumMediaIdRequest':
-          return PatchMediumMediaIdRequest.fromJson(value);
         case 'PatchUsersUserIdRequest':
           return PatchUsersUserIdRequest.fromJson(value);
-        case 'PostLogin200Response':
-          return PostLogin200Response.fromJson(value);
         case 'PostLoginRequest':
           return PostLoginRequest.fromJson(value);
         case 'PostMediaRequest':
@@ -202,8 +198,6 @@ class ApiClient {
           return PostUser201Response.fromJson(value);
         case 'PostUserRequest':
           return PostUserRequest.fromJson(value);
-        case 'User':
-          return User.fromJson(value);
         default:
           dynamic match;
           if (value is List && (match = _regList.firstMatch(targetType)?.group(1)) != null) {
