@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:arkit_plugin/arkit_plugin.dart';
 import 'package:flutter/material.dart';
 import 'package:last_tamushun_app/models/video_picture.dart';
@@ -17,13 +19,44 @@ class Gallery extends StatefulWidget {
 class _GalleryState extends State<Gallery> {
   bool isShowing = false;
 
-  void showHandler(List<ARKitNode> pictureNodes) {
+  void showHandler() async {
     if (isShowing) {
-      for (var pictureNode in pictureNodes) {
-        widget.arkitController.remove(pictureNode.name);
+      for (int i = 0; i < widget.videoPictures.length; i++) {
+        widget.arkitController.remove(i.toString());
       }
     } else {
-      for (var pictureNode in pictureNodes) {
+      vector.Vector3 cameraPosition =
+          await widget.arkitController.cameraPosition() ??
+              vector.Vector3(0, 0, 0);
+      vector.Vector3 cameraEulerAngle =
+          await widget.arkitController.getCameraEulerAngles();
+      final List<ARKitNode> pictureNodes =
+          widget.videoPictures.asMap().entries.map((videoPicture) {
+        const distance = 4;
+        final thisNodeAngleY = cameraEulerAngle.y - videoPicture.key * (pi / 8);
+        const pictureNodeWidth = 640 / 100 / 5;
+        final pictureNode = ARKitNode(
+          geometry: ARKitPlane(
+            width: pictureNodeWidth,
+            height: pictureNodeWidth * (9 / 16),
+            materials: [
+              ARKitMaterial(
+                diffuse: ARKitMaterialImage(videoPicture.value.pictureUrl),
+                doubleSided: true,
+              ),
+            ],
+          ),
+          position: vector.Vector3(
+            cameraPosition.x - distance * sin(thisNodeAngleY),
+            cameraPosition.y,
+            cameraPosition.z - distance * cos(thisNodeAngleY),
+          ),
+          eulerAngles: vector.Vector3(thisNodeAngleY, 0, 0),
+          name: (videoPicture.key).toString(),
+        );
+        return pictureNode;
+      }).toList();
+      for (final pictureNode in pictureNodes) {
         widget.arkitController.add(pictureNode);
       }
     }
@@ -32,27 +65,8 @@ class _GalleryState extends State<Gallery> {
 
   @override
   Widget build(BuildContext context) {
-    final List<ARKitNode> pictureNodes =
-        widget.videoPictures.asMap().entries.map((videoPicture) {
-      const pictureNodeWidth = 640 / 100 / 5;
-      final pictureNode = ARKitNode(
-        geometry: ARKitPlane(
-          width: pictureNodeWidth,
-          height: pictureNodeWidth * (9 / 16),
-          materials: [
-            ARKitMaterial(
-              diffuse: ARKitMaterialImage(videoPicture.value.pictureUrl),
-            ),
-          ],
-        ),
-        position: vector.Vector3(videoPicture.key * pictureNodeWidth, 0.5, -1),
-        eulerAngles: vector.Vector3(0, 0, 0),
-        name: videoPicture.key.toString(),
-      );
-      return pictureNode;
-    }).toList();
     return ElevatedButton(
-      onPressed: () => showHandler(pictureNodes),
+      onPressed: () => showHandler(),
       child: const Icon(Icons.photo_album),
     );
   }
