@@ -8,6 +8,7 @@ import 'package:ffmpeg_kit_flutter/ffprobe_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:last_tamushun_app/hooks/logout.dart';
+import 'package:last_tamushun_app/repositorys/registration_repository.dart';
 import 'package:last_tamushun_app/repositorys/storage_repository.dart';
 import 'package:video_player/video_player.dart';
 
@@ -328,15 +329,24 @@ class _DisplayPictureScreenState extends State<DisplayPictureScreen> {
               isLoading = true;
             });
             final storageRepository = StorageRepository();
-            await storageRepository.uploadFile(
+            final uploadedImageURL = await storageRepository.uploadFile(
               widget.imagePath,
               '${DateTime.now().millisecondsSinceEpoch}',
             );
-            await storageRepository.uploadFile(
+            final uploadedVideoURL = await storageRepository.uploadFile(
               outputPath,
               '${DateTime.now().millisecondsSinceEpoch}',
             );
-            widget.cameraController.startVideoRecording();
+
+            print("uploadedImageURL: $uploadedImageURL");
+            print("uploadedVideoURL: $uploadedVideoURL");
+
+            final registrationRepository = RegistrationRepository();
+            await registrationRepository.postUploadFile(
+              uploadedImageURL!,
+              uploadedVideoURL!,
+            );
+            await widget.cameraController.startVideoRecording();
             Navigator.of(context).pop();
             setState(() {
               isLoading = false;
