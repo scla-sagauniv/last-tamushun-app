@@ -52,7 +52,7 @@ class _GalleryState extends State<Gallery> {
             cameraPosition.z - distance * cos(thisNodeAngleY),
           ),
           eulerAngles: vector.Vector3(thisNodeAngleY, 0, 0),
-          name: (videoPicture.key).toString(),
+          name: "gallery/${videoPicture.key}",
         );
         return pictureNode;
       }).toList();
@@ -70,4 +70,32 @@ class _GalleryState extends State<Gallery> {
       child: const Icon(Icons.photo_album),
     );
   }
+}
+
+void galleryTapHandler(
+    BuildContext context, String nodeName, List<Media> videoPictures) {
+  final pictureIndex = int.parse(nodeName.split("/").last);
+  final imageUrl = videoPictures[pictureIndex].imageUrl;
+
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+          content: Stack(
+        alignment: Alignment.center,
+        children: [
+          Image.network(
+            imageUrl,
+            width: 640,
+            height: 480,
+            fit: BoxFit.fitWidth,
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Icon(Icons.close),
+          ),
+        ],
+      ));
+    },
+  );
 }
