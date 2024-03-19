@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:io';
 import 'dart:core';
 
@@ -57,9 +56,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
           isCameraPressed = false;
         });
       }
-    }).onError((error, stackTrace) {
-      print('Error: $error');
-      print('Stack: $stackTrace');
     });
     setState(() {
       _controller = _controller;
@@ -110,18 +106,14 @@ class _RegistrationPageState extends State<RegistrationPage> {
     // 画像が選択されたかどうかを確認
     if (image != null) {
       isPickToMovie = true;
-      print("HOGEHOGE IS RECO ${_controller.value.isRecordingVideo}");
       // _controller.stopVideoRecording();
       sleep(const Duration(milliseconds: 500));
       isPickToMovie = false;
-      print("Image selected: ${image.path}");
 
       // 画像が選択された後に動画を選択
       final XFile? movie = await picker.pickVideo(source: ImageSource.gallery);
       // 動画が選択されたかどうかを確認
       if (movie != null) {
-        print("Movie selected: ${movie.path}");
-
         // 5秒前の動画をトリミング
         await trimLastFiveSeconds(movie.path);
 
@@ -136,13 +128,10 @@ class _RegistrationPageState extends State<RegistrationPage> {
           ),
         );
       } else {
-        print("No movie selected.");
         !_controller.value.isRecordingVideo
             ? _controller.startVideoRecording()
-            : print("---------recording");
+            : null;
       }
-    } else {
-      print("No image selected.");
     }
 
     setState(() {
@@ -230,7 +219,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
         body: Stack(
           children: <Widget>[
             if (_initializeControllerFuture != null)
-              Container(
+              SizedBox(
                 width: double.infinity,
                 height: double.infinity,
                 child: FutureBuilder<void>(
