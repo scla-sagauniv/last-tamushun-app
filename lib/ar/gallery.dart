@@ -23,6 +23,8 @@ class _GalleryState extends State<Gallery> {
   List<ARKitNode> pictureNodes = [];
   final distance = 4;
   final r = 4.0;
+  double lastPanTranslationX = 0;
+  final stpowatch = Stopwatch();
 
   @override
   void initState() {
@@ -42,6 +44,7 @@ class _GalleryState extends State<Gallery> {
       position: vector.Vector3(0, 0, 0),
       name: "centerAnchorNode",
     );
+    stpowatch.start();
   }
 
   void showHandler() async {
@@ -95,6 +98,9 @@ class _GalleryState extends State<Gallery> {
   }
 
   void galleryPanHandler(List<ARKitNodePanResult> pan) {
+    if (stpowatch.elapsedMilliseconds > 100) {
+      lastPanTranslationX = 0;
+    }
     ARKitNodePanResult? panNode = [...pan, null].firstWhere(
       (e) => e != null && e.nodeName == "centerAnchorNode",
       orElse: () => null,
@@ -102,13 +108,11 @@ class _GalleryState extends State<Gallery> {
     if (panNode == null) {
       return;
     }
-    final oldCenterAnchorNode = centerAnchorNode.eulerAngles;
-    final newAngleX = panNode.translation.x * pi / 500;
+    final oldCenterAnchorAngleX = centerAnchorNode.eulerAngles.x;
+    final newAngleX = panNode.translation.x / 100;
     centerAnchorNode.eulerAngles = vector.Vector3(
-      oldCenterAnchorNode.x + newAngleX,
-      oldCenterAnchorNode.y,
-      oldCenterAnchorNode.z,
-    );
+        oldCenterAnchorAngleX + (newAngleX - lastPanTranslationX), 0, 0);
+    lastPanTranslationX = newAngleX;
 
     for (final (idx, pictureNode) in pictureNodes.indexed) {
       final oldPictureNode = pictureNode.eulerAngles;
@@ -120,6 +124,7 @@ class _GalleryState extends State<Gallery> {
       );
       pictureNode.transform.rotateY(newNodeAngleX - oldPictureNode.x);
     }
+    stpowatch.reset();
   }
 
   @override
