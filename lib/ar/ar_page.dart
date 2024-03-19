@@ -142,6 +142,7 @@ class ARPageState extends ConsumerState<ARPage> {
               .toList(),
           onARKitViewCreated: onARKitViewCreated,
           enableTapRecognizer: true,
+          enablePanRecognizer: true,
         ),
         Text(
           "referenceImageName: $referenceImageName",

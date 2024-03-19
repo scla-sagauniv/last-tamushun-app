@@ -19,23 +19,53 @@ class Gallery extends StatefulWidget {
 
 class _GalleryState extends State<Gallery> {
   bool isShowing = false;
+  late ARKitNode centerAnchorNode;
+  List<ARKitNode> pictureNodes = [];
+  final distance = 4;
+  final r = 4.0;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.arkitController.onNodePan = galleryPanHandler;
+    centerAnchorNode = ARKitNode(
+      geometry: ARKitSphere(
+        radius: r / 2,
+        materials: [
+          ARKitMaterial(
+            diffuse: ARKitMaterialProperty.image('assets/earth.jpg'),
+            doubleSided: true,
+            transparency: 0,
+          ),
+        ],
+      ),
+      position: vector.Vector3(0, 0, 0),
+      name: "centerAnchorNode",
+    );
+  }
 
   void showHandler() async {
     if (isShowing) {
       for (int i = 0; i < widget.videoPictures.length; i++) {
         widget.arkitController.remove("gallery/$i");
       }
+      widget.arkitController.remove("centerAnchorNode");
     } else {
       vector.Vector3 cameraPosition =
           await widget.arkitController.cameraPosition() ??
               vector.Vector3(0, 0, 0);
       vector.Vector3 cameraEulerAngle =
           await widget.arkitController.getCameraEulerAngles();
-      final List<ARKitNode> pictureNodes =
-          widget.videoPictures.asMap().entries.map((videoPicture) {
-        const distance = 4;
-        final thisNodeAngleY = cameraEulerAngle.y - videoPicture.key * (pi / 8);
-        const pictureNodeWidth = 640 / 100 / 5;
+      final centerAnchor = vector.Vector3(
+        cameraPosition.x - distance * sin(cameraEulerAngle.y),
+        cameraPosition.y,
+        cameraPosition.z - distance * cos(cameraEulerAngle.y),
+      );
+      centerAnchorNode.position = centerAnchor;
+      widget.arkitController.add(centerAnchorNode);
+      pictureNodes = widget.videoPictures.asMap().entries.map((videoPicture) {
+        final thisNodeAngle = videoPicture.key * (pi / 8);
+        const pictureNodeWidth = 640 / 1000;
         final pictureNode = ARKitNode(
           geometry: ARKitPlane(
             width: pictureNodeWidth,
@@ -48,11 +78,11 @@ class _GalleryState extends State<Gallery> {
             ],
           ),
           position: vector.Vector3(
-            cameraPosition.x - distance * sin(thisNodeAngleY),
-            cameraPosition.y,
-            cameraPosition.z - distance * cos(thisNodeAngleY),
+            centerAnchor.x - r / 2 * sin(thisNodeAngle),
+            centerAnchor.y,
+            centerAnchor.z - r / 2 * cos(thisNodeAngle),
           ),
-          eulerAngles: vector.Vector3(thisNodeAngleY, 0, 0),
+          eulerAngles: vector.Vector3(thisNodeAngle, 0, 0),
           name: "gallery/${videoPicture.key}",
         );
         return pictureNode;
@@ -62,6 +92,34 @@ class _GalleryState extends State<Gallery> {
       }
     }
     isShowing = !isShowing;
+  }
+
+  void galleryPanHandler(List<ARKitNodePanResult> pan) {
+    ARKitNodePanResult? panNode = [...pan, null].firstWhere(
+      (e) => e != null && e.nodeName == "centerAnchorNode",
+      orElse: () => null,
+    );
+    if (panNode == null) {
+      return;
+    }
+    final oldCenterAnchorNode = centerAnchorNode.eulerAngles;
+    final newAngleX = panNode.translation.x * pi / 500;
+    centerAnchorNode.eulerAngles = vector.Vector3(
+      oldCenterAnchorNode.x + newAngleX,
+      oldCenterAnchorNode.y,
+      oldCenterAnchorNode.z,
+    );
+
+    for (final (idx, pictureNode) in pictureNodes.indexed) {
+      final oldPictureNode = pictureNode.eulerAngles;
+      final newNodeAngleX = centerAnchorNode.eulerAngles.x - idx * (pi / 8);
+      pictureNode.position = vector.Vector3(
+        centerAnchorNode.position.x - r / 2 * sin(newNodeAngleX),
+        centerAnchorNode.position.y,
+        centerAnchorNode.position.z - r / 2 * cos(newNodeAngleX),
+      );
+      pictureNode.transform.rotateY(newNodeAngleX - oldPictureNode.x);
+    }
   }
 
   @override
