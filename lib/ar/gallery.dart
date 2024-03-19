@@ -155,12 +155,10 @@ class _GalleryState extends State<Gallery> {
   }
 
   void panWatcher() {
-    print('watcher');
     double lastObservedValue = 0;
-    panTimer = Timer.periodic(const Duration(microseconds: 1000), (_) {
+    panTimer = Timer.periodic(const Duration(milliseconds: 50), (_) {
       if (!isPanning) return;
       if (lastPanTranslationX == lastObservedValue) {
-        print("$lastObservedValue");
         initValueForPan();
         panInertia(lastObservedValue);
         lastObservedValue = 0;
@@ -171,13 +169,24 @@ class _GalleryState extends State<Gallery> {
   }
 
   void panInertia(double translationXIncrement) {
-    print("panInertia");
-    const decelerationRatio = 0.01;
+    if (translationXIncrement.abs() < 0.3) {
+      return;
+    }
+    double decelerationRatio = 0.1;
     final isMinus = translationXIncrement < 0;
     double lastIncrementValue = translationXIncrement;
-    while (true) {
+    Timer.periodic(const Duration(milliseconds: 100), (timer) {
+      if (isMinus) {
+        if (lastIncrementValue > -0.05) {
+          timer.cancel();
+        }
+      } else {
+        if (lastIncrementValue < 0.05) {
+          timer.cancel();
+        }
+      }
       if (lastIncrementValue.abs() < 0.05) {
-        break;
+        timer.cancel();
       }
 
       final oldCenterAnchorAngleX = centerAnchorNode.eulerAngles.x;
@@ -201,7 +210,8 @@ class _GalleryState extends State<Gallery> {
       } else {
         lastIncrementValue -= decelerationRatio;
       }
-    }
+      decelerationRatio = lastIncrementValue.abs() * 0.35;
+    });
   }
 
   @override
