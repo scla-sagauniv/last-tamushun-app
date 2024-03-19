@@ -120,6 +120,9 @@ class _RegistrationPageState extends State<RegistrationPage> {
     String time = "5";
     String startTime = await calculateStartTime(moviePath);
 
+    // FFmpegKitを使用して動画をトリミング
+    // `ss`オプションで開始時間を指定し、`t`オプションで持続時間を5秒に設定
+    // 実際には動画の総再生時間から5秒前のタイムスタンプを計算して`ss`オプションに指定
     String command =
         "-y -i $moviePath -ss $startTime -t $time -c copy $outputPath";
     await FFmpegKit.execute(command).then((session) async {
@@ -132,9 +135,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
     });
   }
 
-  // FFmpegKitを使用して動画をトリミング
-  // `ss`オプションで開始時間を指定し、`t`オプションで持続時間を5秒に設定
-  // 実際には動画の総再生時間から5秒前のタイムスタンプを計算して`ss`オプションに指定
   final StorageRepository storageRepository = StorageRepository();
 
   @override
@@ -273,16 +273,20 @@ class _DisplayPictureScreenState extends State<DisplayPictureScreen> {
           children: <Widget>[
             GestureDetector(
               onLongPressStart: (_) {
-                _controller.play();
+                setState(() {
+                  _controller.play();
+                });
               },
               onLongPress: () {
                 setState(() {
+                  sleep(const Duration(milliseconds: 500));
                   isImagePressed = true;
                 });
               },
               onLongPressEnd: (_) {
                 setState(() {
                   isImagePressed = false;
+                  _controller.seekTo(const Duration(milliseconds: 300));
                 });
               },
               child: _controller.value.isInitialized
