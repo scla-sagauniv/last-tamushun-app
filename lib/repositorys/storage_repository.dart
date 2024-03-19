@@ -10,7 +10,6 @@ class StorageRepository {
       final uploadFileData =
           await storage.ref('uploads/$fileName').putFile(file);
       final downloadURL = await uploadFileData.ref.getDownloadURL();
-      print(downloadURL);
       return downloadURL;
     } on FirebaseException catch (e) {
       print(e);
