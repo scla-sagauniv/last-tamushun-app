@@ -43,10 +43,16 @@ class _RegistrationPageState extends State<RegistrationPage> {
       camera!,
       ResolutionPreset.veryHigh,
     );
-    _initializeControllerFuture = _controller.initialize().then((_) {
+    _initializeControllerFuture = _controller.initialize().then((_) async {
       // カメラ初期化後にビデオ撮影を開始
       if (_controller.value.isInitialized) {
-        _controller.startVideoRecording();
+        setState(() {
+          isCameraPressed = true;
+        });
+        await _controller.startVideoRecording();
+        setState(() {
+          isCameraPressed = false;
+        });
       }
     }).onError((error, stackTrace) {
       print('Error: $error');
