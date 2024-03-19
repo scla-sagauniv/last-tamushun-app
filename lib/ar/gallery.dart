@@ -85,7 +85,7 @@ class _GalleryState extends State<Gallery> {
             centerAnchor.y,
             centerAnchor.z - r / 2 * cos(thisNodeAngle),
           ),
-          eulerAngles: vector.Vector3(thisNodeAngle, 0, 0),
+          eulerAngles: vector.Vector3(thisNodeAngle - pi, 0, 0),
           name: "gallery/${videoPicture.key}",
         );
         return pictureNode;
@@ -122,7 +122,7 @@ class _GalleryState extends State<Gallery> {
         centerAnchorNode.position.y,
         centerAnchorNode.position.z - r / 2 * cos(newNodeAngleX),
       );
-      pictureNode.transform.rotateY(newNodeAngleX - oldPictureNode.x);
+      pictureNode.transform.rotateY(newNodeAngleX - oldPictureNode.x - pi);
     }
     stpowatch.reset();
   }
