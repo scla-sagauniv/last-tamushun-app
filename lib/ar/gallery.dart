@@ -76,7 +76,7 @@ class _GalleryState extends State<Gallery> {
             materials: [
               ARKitMaterial(
                 diffuse: ARKitMaterialImage(videoPicture.value.imageUrl),
-                doubleSided: true,
+                doubleSided: false,
               ),
             ],
           ),
