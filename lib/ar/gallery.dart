@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:arkit_plugin/arkit_plugin.dart';
@@ -19,23 +20,79 @@ class Gallery extends StatefulWidget {
 
 class _GalleryState extends State<Gallery> {
   bool isShowing = false;
+  late ARKitNode centerAnchorNode;
+  List<ARKitNode> pictureNodes = [];
+  double distance = 4;
+  double r = 4.0;
+  double lastPanTranslationX = 0;
+  double lastPanTranslationXIncrement = 0;
+  bool isPanning = false;
+  final stpowatch = Stopwatch();
+  Timer? panTimer;
+
+  void initValueForPan() {
+    lastPanTranslationX = 0;
+    lastPanTranslationXIncrement = 0;
+    isPanning = false;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    widget.arkitController.onNodePan = galleryPanHandler;
+    r = widget.videoPictures.length / 3;
+    distance = r;
+    centerAnchorNode = ARKitNode(
+      geometry: ARKitSphere(
+        radius: r / 2,
+        materials: [
+          ARKitMaterial(
+            diffuse: ARKitMaterialProperty.image('assets/earth.jpg'),
+            doubleSided: true,
+            transparency: 0,
+          ),
+        ],
+      ),
+      position: vector.Vector3(0, 0, 0),
+      name: "centerAnchorNode",
+    );
+    stpowatch.start();
+  }
+
+  @override
+  void dispose() {
+    widget.arkitController.onNodePan = null;
+    stpowatch.stop();
+    panTimer?.cancel();
+    super.dispose();
+  }
 
   void showHandler() async {
     if (isShowing) {
+      panTimer?.cancel();
       for (int i = 0; i < widget.videoPictures.length; i++) {
-        widget.arkitController.remove(i.toString());
+        widget.arkitController.remove("gallery/$i");
       }
+      widget.arkitController.remove("centerAnchorNode");
     } else {
+      panTimer?.cancel();
+      panWatcher();
       vector.Vector3 cameraPosition =
           await widget.arkitController.cameraPosition() ??
               vector.Vector3(0, 0, 0);
       vector.Vector3 cameraEulerAngle =
           await widget.arkitController.getCameraEulerAngles();
-      final List<ARKitNode> pictureNodes =
-          widget.videoPictures.asMap().entries.map((videoPicture) {
-        const distance = 4;
-        final thisNodeAngleY = cameraEulerAngle.y - videoPicture.key * (pi / 8);
-        const pictureNodeWidth = 640 / 100 / 5;
+      final centerAnchor = vector.Vector3(
+        cameraPosition.x - distance * sin(cameraEulerAngle.y),
+        cameraPosition.y,
+        cameraPosition.z - distance * cos(cameraEulerAngle.y),
+      );
+      centerAnchorNode.position = centerAnchor;
+      widget.arkitController.add(centerAnchorNode);
+      pictureNodes = widget.videoPictures.asMap().entries.map((videoPicture) {
+        final thisNodeAngle =
+            videoPicture.key * (pi / (widget.videoPictures.length / 2));
+        const pictureNodeWidth = 640 / 1000;
         final pictureNode = ARKitNode(
           geometry: ARKitPlane(
             width: pictureNodeWidth,
@@ -43,16 +100,16 @@ class _GalleryState extends State<Gallery> {
             materials: [
               ARKitMaterial(
                 diffuse: ARKitMaterialImage(videoPicture.value.imageUrl),
-                doubleSided: true,
+                doubleSided: false,
               ),
             ],
           ),
           position: vector.Vector3(
-            cameraPosition.x - distance * sin(thisNodeAngleY),
-            cameraPosition.y,
-            cameraPosition.z - distance * cos(thisNodeAngleY),
+            centerAnchor.x - r / 2 * sin(thisNodeAngle),
+            centerAnchor.y,
+            centerAnchor.z - r / 2 * cos(thisNodeAngle),
           ),
-          eulerAngles: vector.Vector3(thisNodeAngleY, 0, 0),
+          eulerAngles: vector.Vector3(thisNodeAngle - pi, 0, 0),
           name: "gallery/${videoPicture.key}",
         );
         return pictureNode;
@@ -62,6 +119,99 @@ class _GalleryState extends State<Gallery> {
       }
     }
     isShowing = !isShowing;
+  }
+
+  void galleryPanHandler(List<ARKitNodePanResult> pan) {
+    isPanning = true;
+    if (stpowatch.elapsedMilliseconds > 100) {
+      lastPanTranslationX = 0;
+    }
+    ARKitNodePanResult? panNode = [...pan, null].firstWhere(
+      (e) => e != null && e.nodeName == "centerAnchorNode",
+      orElse: () => null,
+    );
+    if (panNode == null) {
+      return;
+    }
+    final oldCenterAnchorAngleX = centerAnchorNode.eulerAngles.x;
+    final newAngleX = panNode.translation.x / 100;
+    centerAnchorNode.eulerAngles = vector.Vector3(
+        oldCenterAnchorAngleX + (newAngleX - lastPanTranslationX), 0, 0);
+    lastPanTranslationX = newAngleX;
+    lastPanTranslationXIncrement = newAngleX - lastPanTranslationX;
+
+    for (final (idx, pictureNode) in pictureNodes.indexed) {
+      final oldPictureNode = pictureNode.eulerAngles;
+      final newNodeAngleX = centerAnchorNode.eulerAngles.x -
+          idx * (pi / (widget.videoPictures.length / 2));
+      pictureNode.position = vector.Vector3(
+        centerAnchorNode.position.x - r / 2 * sin(newNodeAngleX),
+        centerAnchorNode.position.y,
+        centerAnchorNode.position.z - r / 2 * cos(newNodeAngleX),
+      );
+      pictureNode.transform.rotateY(newNodeAngleX - oldPictureNode.x - pi);
+    }
+    stpowatch.reset();
+  }
+
+  void panWatcher() {
+    double lastObservedValue = 0;
+    panTimer = Timer.periodic(const Duration(milliseconds: 50), (_) {
+      if (!isPanning) return;
+      if (lastPanTranslationX == lastObservedValue) {
+        initValueForPan();
+        panInertia(lastObservedValue);
+        lastObservedValue = 0;
+        return;
+      }
+      lastObservedValue = lastPanTranslationX;
+    });
+  }
+
+  void panInertia(double translationXIncrement) {
+    if (translationXIncrement.abs() < 0.3) {
+      return;
+    }
+    double decelerationRatio = 0.1;
+    final isMinus = translationXIncrement < 0;
+    double lastIncrementValue = translationXIncrement;
+    Timer.periodic(const Duration(milliseconds: 100), (timer) {
+      if (isMinus) {
+        if (lastIncrementValue > -0.05) {
+          timer.cancel();
+        }
+      } else {
+        if (lastIncrementValue < 0.05) {
+          timer.cancel();
+        }
+      }
+      if (lastIncrementValue.abs() < 0.05) {
+        timer.cancel();
+      }
+
+      final oldCenterAnchorAngleX = centerAnchorNode.eulerAngles.x;
+      centerAnchorNode.eulerAngles =
+          vector.Vector3(oldCenterAnchorAngleX + lastIncrementValue, 0, 0);
+
+      for (final (idx, pictureNode) in pictureNodes.indexed) {
+        final oldPictureNode = pictureNode.eulerAngles;
+        final newNodeAngleX = centerAnchorNode.eulerAngles.x -
+            idx * (pi / (widget.videoPictures.length / 2));
+        pictureNode.position = vector.Vector3(
+          centerAnchorNode.position.x - r / 2 * sin(newNodeAngleX),
+          centerAnchorNode.position.y,
+          centerAnchorNode.position.z - r / 2 * cos(newNodeAngleX),
+        );
+        pictureNode.transform.rotateY(newNodeAngleX - oldPictureNode.x - pi);
+      }
+
+      if (isMinus) {
+        lastIncrementValue += decelerationRatio;
+      } else {
+        lastIncrementValue -= decelerationRatio;
+      }
+      decelerationRatio = lastIncrementValue.abs() * 0.35;
+    });
   }
 
   @override
@@ -87,7 +237,7 @@ class GalleryDialog extends StatefulWidget {
 class _GalleryDialogState extends State<GalleryDialog> {
   late VideoPlayerController videoController;
   late String imageUrl;
-  bool isPlaing = false;
+  bool isPlaying = false;
 
   Future<void> _onVideoEndListener() async {
     if (videoController.value.isInitialized &&
@@ -96,7 +246,8 @@ class _GalleryDialogState extends State<GalleryDialog> {
         videoController.value.duration <= videoController.value.position) {
       await videoController.pause();
       await videoController.seekTo(const Duration(seconds: 0));
-      isPlaing = false;
+      isPlaying = false;
+      if (!mounted) return;
       setState(() {});
     }
   }
@@ -127,18 +278,18 @@ class _GalleryDialogState extends State<GalleryDialog> {
             height: 480,
             fit: BoxFit.fitWidth,
           ),
-          isPlaing
+          isPlaying
               ? AspectRatio(
                   aspectRatio: videoController.value.aspectRatio,
                   child: VideoPlayer(videoController),
                 )
               : const SizedBox(),
-          !isPlaing
+          !isPlaying
               ? IconButton(
                   onPressed: () async {
-                    if (!isPlaing) {
+                    if (!isPlaying) {
                       await videoController.play();
-                      isPlaing = true;
+                      isPlaying = true;
                     }
                     setState(() {});
                   },
