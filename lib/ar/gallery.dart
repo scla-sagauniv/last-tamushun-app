@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:arkit_plugin/arkit_plugin.dart';
@@ -24,7 +25,16 @@ class _GalleryState extends State<Gallery> {
   double distance = 4;
   double r = 4.0;
   double lastPanTranslationX = 0;
+  double lastPanTranslationXIncrement = 0;
+  bool isPanning = false;
   final stpowatch = Stopwatch();
+  Timer? panTimer;
+
+  void initValueForPan() {
+    lastPanTranslationX = 0;
+    lastPanTranslationXIncrement = 0;
+    isPanning = false;
+  }
 
   @override
   void initState() {
@@ -51,18 +61,22 @@ class _GalleryState extends State<Gallery> {
 
   @override
   void dispose() {
-    super.dispose();
     widget.arkitController.onNodePan = null;
     stpowatch.stop();
+    panTimer?.cancel();
+    super.dispose();
   }
 
   void showHandler() async {
     if (isShowing) {
+      panTimer?.cancel();
       for (int i = 0; i < widget.videoPictures.length; i++) {
         widget.arkitController.remove("gallery/$i");
       }
       widget.arkitController.remove("centerAnchorNode");
     } else {
+      panTimer?.cancel();
+      panWatcher();
       vector.Vector3 cameraPosition =
           await widget.arkitController.cameraPosition() ??
               vector.Vector3(0, 0, 0);
@@ -108,6 +122,7 @@ class _GalleryState extends State<Gallery> {
   }
 
   void galleryPanHandler(List<ARKitNodePanResult> pan) {
+    isPanning = true;
     if (stpowatch.elapsedMilliseconds > 100) {
       lastPanTranslationX = 0;
     }
@@ -123,6 +138,7 @@ class _GalleryState extends State<Gallery> {
     centerAnchorNode.eulerAngles = vector.Vector3(
         oldCenterAnchorAngleX + (newAngleX - lastPanTranslationX), 0, 0);
     lastPanTranslationX = newAngleX;
+    lastPanTranslationXIncrement = newAngleX - lastPanTranslationX;
 
     for (final (idx, pictureNode) in pictureNodes.indexed) {
       final oldPictureNode = pictureNode.eulerAngles;
@@ -136,6 +152,56 @@ class _GalleryState extends State<Gallery> {
       pictureNode.transform.rotateY(newNodeAngleX - oldPictureNode.x - pi);
     }
     stpowatch.reset();
+  }
+
+  void panWatcher() {
+    print('watcher');
+    double lastObservedValue = 0;
+    panTimer = Timer.periodic(const Duration(microseconds: 1000), (_) {
+      if (!isPanning) return;
+      if (lastPanTranslationX == lastObservedValue) {
+        print("$lastObservedValue");
+        initValueForPan();
+        panInertia(lastObservedValue);
+        lastObservedValue = 0;
+        return;
+      }
+      lastObservedValue = lastPanTranslationX;
+    });
+  }
+
+  void panInertia(double translationXIncrement) {
+    print("panInertia");
+    const decelerationRatio = 0.01;
+    final isMinus = translationXIncrement < 0;
+    double lastIncrementValue = translationXIncrement;
+    while (true) {
+      if (lastIncrementValue.abs() < 0.05) {
+        break;
+      }
+
+      final oldCenterAnchorAngleX = centerAnchorNode.eulerAngles.x;
+      centerAnchorNode.eulerAngles =
+          vector.Vector3(oldCenterAnchorAngleX + lastIncrementValue, 0, 0);
+
+      for (final (idx, pictureNode) in pictureNodes.indexed) {
+        final oldPictureNode = pictureNode.eulerAngles;
+        final newNodeAngleX = centerAnchorNode.eulerAngles.x -
+            idx * (pi / (widget.videoPictures.length / 2));
+        pictureNode.position = vector.Vector3(
+          centerAnchorNode.position.x - r / 2 * sin(newNodeAngleX),
+          centerAnchorNode.position.y,
+          centerAnchorNode.position.z - r / 2 * cos(newNodeAngleX),
+        );
+        pictureNode.transform.rotateY(newNodeAngleX - oldPictureNode.x - pi);
+      }
+
+      if (isMinus) {
+        lastIncrementValue += decelerationRatio;
+      } else {
+        lastIncrementValue -= decelerationRatio;
+      }
+    }
   }
 
   @override
