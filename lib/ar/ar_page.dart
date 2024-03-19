@@ -3,35 +3,40 @@ import 'dart:math';
 
 import 'package:arkit_plugin/arkit_plugin.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:last_tamushun_app/models/video_picture.dart';
+import 'package:last_tamushun_app/ar/gallery.dart';
 import 'package:last_tamushun_app/repositorys/video_picture_repository.dart';
-import 'package:vector_math/vector_math_64.dart' as vector;
+import 'package:openapi/api.dart';
 
-class PictureBrowsingPage extends ConsumerStatefulWidget {
-  const PictureBrowsingPage({super.key});
+class ARPage extends ConsumerStatefulWidget {
+  const ARPage({super.key});
 
   @override
-  PictureBrowsingPageState createState() => PictureBrowsingPageState();
+  ARPageState createState() => ARPageState();
 }
 
-class PictureBrowsingPageState extends ConsumerState<PictureBrowsingPage> {
-  late ARKitController arkitController;
+class ARPageState extends ConsumerState<ARPage> {
+  ARKitController? arkitController;
   late String referenceImageName = '';
-  late Future<List<VideoPicture>> videoPicturesFuture;
-  late VideoPicture videoPictures;
-  late Timer timer;
+  late Future<List<Media>> videoPicturesFuture;
+  late Media videoPictures;
+  Widget? galleryButton;
 
   @override
   void initState() {
     super.initState();
     final videoPictureRepository = ref.read(videoPictureRepositoryProvider);
-    videoPicturesFuture = videoPictureRepository.getVideoPicture();
+    try {
+      videoPicturesFuture = videoPictureRepository.getVideoPicture();
+    } catch (e) {
+      context.go('/error');
+    }
   }
 
   @override
   void dispose() {
-    arkitController.dispose();
+    arkitController?.dispose();
     super.dispose();
   }
 
@@ -43,8 +48,9 @@ class PictureBrowsingPageState extends ConsumerState<PictureBrowsingPage> {
         appBar: AppBar(
           title: const Text('Picture Browsing'),
         ),
+        floatingActionButton: galleryButton ?? const SizedBox(),
         body: snapshot.connectionState == ConnectionState.done
-            ? _builder(snapshot.data!)
+            ? _builder(snapshot.data)
             : Column(
                 children: [
                   const CircularProgressIndicator(),
@@ -55,27 +61,17 @@ class PictureBrowsingPageState extends ConsumerState<PictureBrowsingPage> {
     );
   }
 
-  Widget _builder(List<VideoPicture> videoPictures) {
-    vector.Vector3 rotationMatrixToEulerAngles(vector.Matrix3 R) {
-      double pitch, roll, yaw;
-
-      pitch = asin(-R.getRow(2)[0]);
-
-      if (R.getRow(2)[0].abs() < 0.999) {
-        yaw = asin(R.getRow(1)[0] / cos(pitch));
-        roll = asin(R.getRow(2)[1] / cos(pitch));
-      } else if (R.getRow(2)[0] > 0) {
-        yaw = asin(-R.getRow(0)[1]);
-        roll = 0;
-      } else {
-        yaw = asin(-R.getRow(0)[1]);
-        roll = 0;
-      }
-
-      return vector.Vector3(pitch, roll + pi / 2, yaw);
+  Widget _builder(List<Media>? videoPictures) {
+    if (videoPictures == null) {
+      context.go('/error');
+      return const Text('Failed to get video pictures');
     }
 
     void onAnchorWasFound(ARKitAnchor anchor) {
+      if (arkitController == null) {
+        return;
+      }
+
       if (anchor is ARKitImageAnchor) {
         setState(() {
           referenceImageName = anchor.referenceImageName ?? '';
@@ -84,8 +80,8 @@ class PictureBrowsingPageState extends ConsumerState<PictureBrowsingPage> {
           return;
         }
         final referencedPictureVideoUrl = videoPictures
-            .firstWhere((e) => e.pictureUrl == referenceImageName)
-            .videoUrl;
+            .firstWhere((e) => e.imageUrl == referenceImageName)
+            .movieUrl;
         final imageSize = anchor.referenceImagePhysicalSize;
 
         final video = ARKitMaterialProperty.video(
@@ -106,22 +102,33 @@ class PictureBrowsingPageState extends ConsumerState<PictureBrowsingPage> {
           materials: [material],
         );
 
-        final detectPosition = anchor.transform.getTranslation();
-        final detectRotation = anchor.transform.getRotation();
-        final detectEulerAngles = rotationMatrixToEulerAngles(detectRotation);
+        final detectedTransform = anchor.transform;
+        detectedTransform.rotateX(pi / 2);
         final node = ARKitNode(
           geometry: plane,
-          position: vector.Vector3(
-              detectPosition.x, detectPosition.y, detectPosition.z),
-          eulerAngles: detectEulerAngles,
+          transformation: detectedTransform,
         );
-        arkitController.add(node);
+        arkitController?.add(node);
+      }
+    }
+
+    void onNodeTapHandler(List<String> nodesList) {
+      final nodeName = nodesList.first;
+      if (nodeName.startsWith('gallery/')) {
+        galleryTapHandler(context, nodeName, videoPictures);
       }
     }
 
     void onARKitViewCreated(ARKitController arkitController) {
       this.arkitController = arkitController;
       arkitController.onAddNodeForAnchor = onAnchorWasFound;
+      arkitController.onNodeTap = onNodeTapHandler;
+      setState(() {
+        galleryButton = Gallery(
+          videoPictures: videoPictures,
+          arkitController: arkitController,
+        );
+      });
     }
 
     return Stack(
@@ -129,11 +136,12 @@ class PictureBrowsingPageState extends ConsumerState<PictureBrowsingPage> {
         ARKitSceneView(
           detectionImages: videoPictures
               .map((e) => ARKitReferenceImage(
-                    name: e.pictureUrl,
+                    name: e.imageUrl,
                     physicalWidth: 0.2,
                   ))
               .toList(),
           onARKitViewCreated: onARKitViewCreated,
+          enableTapRecognizer: true,
         ),
         Text(
           "referenceImageName: $referenceImageName",

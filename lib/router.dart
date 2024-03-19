@@ -1,12 +1,11 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:last_tamushun_app/ar/ar_page.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:last_tamushun_app/ar_gallery/ar_gallery_page.dart';
 import 'package:last_tamushun_app/authentication/auth_page.dart';
+import 'package:last_tamushun_app/error_page.dart';
 import 'package:last_tamushun_app/home/home_page.dart';
-import 'package:last_tamushun_app/location_browsing/location_browsing_page.dart';
-import 'package:last_tamushun_app/picture_browsing/picture_browsing_page.dart';
 import 'package:last_tamushun_app/registration/registration_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -46,10 +45,7 @@ final routerProvider = Provider((ref) {
       ),
       GoRoute(
         path: '/',
-        builder: (context, state) {
-          print("HOME");
-          return const HomePage();
-        },
+        builder: (context, state) => const HomePage(),
       ),
       GoRoute(
         path: '/auth',
@@ -60,22 +56,16 @@ final routerProvider = Provider((ref) {
         builder: (context, state) => const RegistrationPage(),
       ),
       GoRoute(
-        path: '/ar-gallery',
-        builder: (context, state) => const ARGalleryPage(),
+        path: '/ar',
+        builder: (context, state) => const ARPage(),
       ),
       GoRoute(
-        path: '/picture-browsing',
-        builder: (context, state) => const PictureBrowsingPage(),
-      ),
-      GoRoute(
-        path: '/location-browsing',
-        builder: (context, state) => const LocationBrowsingPage(),
+        path: '/error',
+        builder: (context, state) => const ErrorPage(),
       ),
     ],
     redirect: (context, state) async {
       final token = await _getToken();
-
-      print(token);
 
       final loggingIn = state.matchedLocation == '/auth';
 
@@ -122,6 +112,10 @@ class RouteListPage extends StatelessWidget {
           ListTile(
             title: const Text('location-browsing'),
             onTap: () => context.go('/location-browsing'),
+          ),
+          ListTile(
+            title: const Text('ar'),
+            onTap: () => context.go('/ar'),
           ),
         ],
       ),
