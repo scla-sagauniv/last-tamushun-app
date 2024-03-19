@@ -1,12 +1,20 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:core';
 
 import 'package:camera/camera.dart';
+import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
+import 'package:ffmpeg_kit_flutter/ffprobe_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:last_tamushun_app/hooks/logout.dart';
 import 'package:last_tamushun_app/repositorys/storage_repository.dart';
 import 'package:video_player/video_player.dart';
+
+import 'package:progress_state_button/iconed_button.dart';
+import 'package:progress_state_button/progress_button.dart';
+
+final outputPath = "${Directory.systemTemp.path}/trimmed_video.mp4";
 
 class RegistrationPage extends StatefulWidget {
   const RegistrationPage({super.key});
@@ -39,6 +47,9 @@ class _RegistrationPageState extends State<RegistrationPage> {
       if (_controller.value.isInitialized) {
         _controller.startVideoRecording();
       }
+    }).onError((error, stackTrace) {
+      print('Error: $error');
+      print('Stack: $stackTrace');
     });
     setState(() {
       _controller = _controller;
@@ -50,18 +61,21 @@ class _RegistrationPageState extends State<RegistrationPage> {
     setState(() {
       isCameraPressed = true;
     });
+    print("isRecordingVideo: ${_controller.value.isRecordingVideo}");
     // ビデオ撮影を停止
     final movie = await _controller.stopVideoRecording();
     // 写真撮影
     final image = await _controller.takePicture();
 
+    // 5秒前の動画をトリミング
+    await trimLastFiveSeconds(movie.path);
     // 撮影した写真とビデオのファイルパスを次の画面に渡す
     await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => DisplayPictureScreen(
-            imagePath: image.path,
-            moviePath: movie.path,
-            cameraController: _controller),
+          imagePath: image.path,
+          cameraController: _controller,
+        ),
         fullscreenDialog: true,
       ),
     );
@@ -70,6 +84,57 @@ class _RegistrationPageState extends State<RegistrationPage> {
     });
   }
 
+  Future<String> calculateStartTime(String videoPath) async {
+    String startTime = "0"; // デフォルトの開始時間
+
+    // FFprobeを使用して動画のメタデータを取得
+    await FFprobeKit.getMediaInformation(videoPath).then((session) async {
+      final information = await session.getMediaInformation();
+
+      final Map<dynamic, dynamic>? properties = information?.getAllProperties();
+
+      // メタデータから動画の長さ（duration）を取得
+      final duration = properties?["format"]["duration"];
+      print("Duration: $duration");
+
+      if (duration != null) {
+        final durationInSeconds = double.parse(duration).floor(); // 秒単位に変換
+        print("Duration in seconds: $durationInSeconds");
+
+        if (durationInSeconds > 5) {
+          // 動画の長さが5秒より長い場合、最後の5秒を抽出
+          startTime = (durationInSeconds - 5).toString();
+        } else {
+          // 動画の長さが5秒以下の場合、エラーメッセージを表示
+          print("Video is too short.");
+        }
+      } else {
+        print("Failed to get video duration.");
+      }
+    });
+
+    return startTime;
+  }
+
+  Future<void> trimLastFiveSeconds(String moviePath) async {
+    String time = "5";
+    String startTime = await calculateStartTime(moviePath);
+
+    String command =
+        "-y -i $moviePath -ss $startTime -t $time -c copy $outputPath";
+    await FFmpegKit.execute(command).then((session) async {
+      final returnCode = await session.getReturnCode();
+      if (returnCode!.isValueSuccess()) {
+        print("Video trimmed successfully: $outputPath");
+      } else {
+        print("Failed to trim video");
+      }
+    });
+  }
+
+  // FFmpegKitを使用して動画をトリミング
+  // `ss`オプションで開始時間を指定し、`t`オプションで持続時間を5秒に設定
+  // 実際には動画の総再生時間から5秒前のタイムスタンプを計算して`ss`オプションに指定
   final StorageRepository storageRepository = StorageRepository();
 
   @override
@@ -109,10 +174,9 @@ class _RegistrationPageState extends State<RegistrationPage> {
                 child: FutureBuilder<void>(
                   future: _initializeControllerFuture,
                   builder: (context, snapshot) {
+                    print(_controller.value);
                     if (snapshot.connectionState == ConnectionState.done &&
                         _controller.value.isInitialized) {
-                      // setState(() {});
-                      print(_controller.value.isRecordingVideo);
                       return AspectRatio(
                         aspectRatio: _controller.value.aspectRatio,
                         child: CameraPreview(
@@ -120,9 +184,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                         ),
                       );
                     } else {
-                      // final connState = snapshot.connectionState;
                       return const Center(child: CircularProgressIndicator());
-                      // return Text("Camera conn$connState");
                     }
                   },
                 ),
@@ -171,11 +233,9 @@ class DisplayPictureScreen extends StatefulWidget {
   const DisplayPictureScreen({
     super.key,
     required this.imagePath,
-    required this.moviePath,
     required this.cameraController,
   });
   final String imagePath;
-  final String moviePath;
   final CameraController cameraController;
 
   @override
@@ -185,11 +245,12 @@ class DisplayPictureScreen extends StatefulWidget {
 class _DisplayPictureScreenState extends State<DisplayPictureScreen> {
   bool isImagePressed = false;
   late VideoPlayerController _controller;
+  bool isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    _controller = VideoPlayerController.file(File(widget.moviePath))
+    _controller = VideoPlayerController.file(File(outputPath))
       ..initialize().then((_) {
         setState(() {});
         _controller.play(); // 動画を自動再生
@@ -199,51 +260,85 @@ class _DisplayPictureScreenState extends State<DisplayPictureScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('撮れた写真'),
-        leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () async {
-              await widget.cameraController.startVideoRecording();
-              Navigator.of(context).pop();
-            }),
-      ),
-      body: Column(
-        children: <Widget>[
-          GestureDetector(
-            onLongPressStart: (_) {
-              _controller.play();
-            },
-            onLongPress: () {
-              setState(() {
-                isImagePressed = true;
-              });
-            },
-            onLongPressEnd: (_) {
-              setState(() {
-                isImagePressed = false;
-              });
-            },
-            child: _controller.value.isInitialized
-                ? isImagePressed == false
-                    ? Image.file(File(widget.imagePath))
-                    : AspectRatio(
-                        aspectRatio: _controller.value.aspectRatio,
-                        child: VideoPlayer(_controller),
-                      )
-                : const CircularProgressIndicator(),
-          ),
-        ],
-      ),
-      // uploadボタン firebaseに画像と動画をアップロードする
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          final storageRepository = StorageRepository();
-          await storageRepository.uploadFile(
-              widget.imagePath, widget.moviePath);
-          Navigator.of(context).pop();
-        },
-      ),
-    );
+        appBar: AppBar(
+          title: const Text('撮れた写真'),
+          leading: IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () async {
+                await widget.cameraController.startVideoRecording();
+                Navigator.of(context).pop();
+              }),
+        ),
+        body: Column(
+          children: <Widget>[
+            GestureDetector(
+              onLongPressStart: (_) {
+                _controller.play();
+              },
+              onLongPress: () {
+                setState(() {
+                  isImagePressed = true;
+                });
+              },
+              onLongPressEnd: (_) {
+                setState(() {
+                  isImagePressed = false;
+                });
+              },
+              child: _controller.value.isInitialized
+                  ? isImagePressed == false
+                      ? Image.file(File(widget.imagePath))
+                      : AspectRatio(
+                          aspectRatio: _controller.value.aspectRatio,
+                          child: VideoPlayer(_controller),
+                        )
+                  : const CircularProgressIndicator(),
+            ),
+          ],
+        ),
+        floatingActionButton: ProgressButton.icon(
+          iconedButtons: {
+            ButtonState.idle: const IconedButton(
+                text: "Upload",
+                icon: Icon(Icons.cloud_upload, color: Colors.white),
+                color: Colors.blue),
+            ButtonState.loading: const IconedButton(
+              text: "Loading",
+              color: Colors.blue,
+              icon: Icon(Icons.refresh, color: Colors.white),
+            ),
+            ButtonState.fail: IconedButton(
+                text: "Failed",
+                icon: const Icon(Icons.cancel, color: Colors.white),
+                color: Colors.red.shade300),
+            ButtonState.success: IconedButton(
+                text: "Success",
+                icon: const Icon(
+                  Icons.check_circle,
+                  color: Colors.white,
+                ),
+                color: Colors.green.shade400)
+          },
+          onPressed: () async {
+            setState(() {
+              isLoading = true;
+            });
+            final storageRepository = StorageRepository();
+            await storageRepository.uploadFile(
+              widget.imagePath,
+              '${DateTime.now().millisecondsSinceEpoch}',
+            );
+            await storageRepository.uploadFile(
+              outputPath,
+              '${DateTime.now().millisecondsSinceEpoch}',
+            );
+            widget.cameraController.startVideoRecording();
+            Navigator.of(context).pop();
+            setState(() {
+              isLoading = false;
+            });
+          },
+          state: (isLoading ? ButtonState.loading : ButtonState.idle),
+        ));
   }
 }
