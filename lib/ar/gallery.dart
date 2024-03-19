@@ -21,8 +21,8 @@ class _GalleryState extends State<Gallery> {
   bool isShowing = false;
   late ARKitNode centerAnchorNode;
   List<ARKitNode> pictureNodes = [];
-  final distance = 4;
-  final r = 4.0;
+  double distance = 4;
+  double r = 4.0;
   double lastPanTranslationX = 0;
   final stpowatch = Stopwatch();
 
@@ -30,6 +30,8 @@ class _GalleryState extends State<Gallery> {
   void initState() {
     super.initState();
     widget.arkitController.onNodePan = galleryPanHandler;
+    r = widget.videoPictures.length / 3;
+    distance = r;
     centerAnchorNode = ARKitNode(
       geometry: ARKitSphere(
         radius: r / 2,
@@ -67,7 +69,8 @@ class _GalleryState extends State<Gallery> {
       centerAnchorNode.position = centerAnchor;
       widget.arkitController.add(centerAnchorNode);
       pictureNodes = widget.videoPictures.asMap().entries.map((videoPicture) {
-        final thisNodeAngle = videoPicture.key * (pi / 8);
+        final thisNodeAngle =
+            videoPicture.key * (pi / (widget.videoPictures.length / 2));
         const pictureNodeWidth = 640 / 1000;
         final pictureNode = ARKitNode(
           geometry: ARKitPlane(
@@ -116,7 +119,8 @@ class _GalleryState extends State<Gallery> {
 
     for (final (idx, pictureNode) in pictureNodes.indexed) {
       final oldPictureNode = pictureNode.eulerAngles;
-      final newNodeAngleX = centerAnchorNode.eulerAngles.x - idx * (pi / 8);
+      final newNodeAngleX = centerAnchorNode.eulerAngles.x -
+          idx * (pi / (widget.videoPictures.length / 2));
       pictureNode.position = vector.Vector3(
         centerAnchorNode.position.x - r / 2 * sin(newNodeAngleX),
         centerAnchorNode.position.y,
