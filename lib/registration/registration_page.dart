@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:last_tamushun_app/hooks/logout.dart';
 import 'package:last_tamushun_app/repositorys/storage_repository.dart';
+import 'package:video_player/video_player.dart';
 
 class RegistrationPage extends StatefulWidget {
   const RegistrationPage({super.key});
@@ -57,8 +58,10 @@ class _RegistrationPageState extends State<RegistrationPage> {
     // 撮影した写真とビデオのファイルパスを次の画面に渡す
     await Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) =>
-            DisplayPictureScreen(imagePath: image.path, moviePath: movie.path),
+        builder: (context) => DisplayPictureScreen(
+            imagePath: image.path,
+            moviePath: movie.path,
+            cameraController: _controller),
         fullscreenDialog: true,
       ),
     );
@@ -137,7 +140,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                   iconSize: 24.0, // Increase the size of the icon
                   // onPressed: () => _getImage(ImageSource.camera),
                   onPressed: isCameraPressed
-                      ? null
+                      ? () {}
                       : () async {
                           await onCaptureButtonPressed();
                         },
@@ -164,52 +167,83 @@ class _RegistrationPageState extends State<RegistrationPage> {
   }
 }
 
-// 撮影した写真を表示する画面
-class DisplayPictureScreen extends StatelessWidget {
-  const DisplayPictureScreen(
-      {super.key, required this.imagePath, required this.moviePath});
-
+class DisplayPictureScreen extends StatefulWidget {
+  const DisplayPictureScreen({
+    super.key,
+    required this.imagePath,
+    required this.moviePath,
+    required this.cameraController,
+  });
   final String imagePath;
   final String moviePath;
+  final CameraController cameraController;
+
+  @override
+  _DisplayPictureScreenState createState() => _DisplayPictureScreenState();
+}
+
+class _DisplayPictureScreenState extends State<DisplayPictureScreen> {
+  bool isImagePressed = false;
+  late VideoPlayerController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = VideoPlayerController.file(File(widget.moviePath))
+      ..initialize().then((_) {
+        setState(() {});
+        _controller.play(); // 動画を自動再生
+      });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('撮れた写真')),
+      appBar: AppBar(
+        title: const Text('撮れた写真'),
+        leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () async {
+              await widget.cameraController.startVideoRecording();
+              Navigator.of(context).pop();
+            }),
+      ),
       body: Column(
         children: <Widget>[
-          // 画像と動画を表示
-          Image.file(File(imagePath)),
-          Text(imagePath),
-          Text(moviePath),
-
-          TextButton(
-            onPressed: () {
-              context.go('/registration');
+          GestureDetector(
+            onLongPressStart: (_) {
+              _controller.play();
             },
-            child: const Text('再撮影'),
-          ),
-          TextButton(
-            onPressed: () {
-              context.go('/registration');
+            onLongPress: () {
+              setState(() {
+                isImagePressed = true;
+              });
             },
-            child: const Text('登録'),
+            onLongPressEnd: (_) {
+              setState(() {
+                isImagePressed = false;
+              });
+            },
+            child: _controller.value.isInitialized
+                ? isImagePressed == false
+                    ? Image.file(File(widget.imagePath))
+                    : AspectRatio(
+                        aspectRatio: _controller.value.aspectRatio,
+                        child: VideoPlayer(_controller),
+                      )
+                : const CircularProgressIndicator(),
           ),
         ],
+      ),
+      // uploadボタン firebaseに画像と動画をアップロードする
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          final storageRepository = StorageRepository();
+          await storageRepository.uploadFile(
+              widget.imagePath, widget.moviePath);
+          Navigator.of(context).pop();
+        },
       ),
     );
   }
 }
-
-  // Future<void> _getImage(ImageSource source) async {
-  //   final pickedFile = await picker.pickImage(source: source);
-
-  //   if (pickedFile != null) {
-  //     setState(() {
-  //       _image = File(pickedFile.path);
-  //     });
-
-  //     // 画像を選択した後、即座にFirebaseにアップロード
-  //     await storageRepository.uploadFile(_image!.path, 'imageFileName.jpg');
-  //   }
-  // }
