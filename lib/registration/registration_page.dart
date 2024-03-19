@@ -7,6 +7,7 @@ import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
 import 'package:ffmpeg_kit_flutter/ffprobe_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:last_tamushun_app/hooks/logout.dart';
 import 'package:last_tamushun_app/repositorys/registration_repository.dart';
 import 'package:last_tamushun_app/repositorys/storage_repository.dart';
@@ -29,6 +30,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
   late CameraController _controller;
   Future<void>? _initializeControllerFuture;
   bool isCameraPressed = false;
+  bool isLiblaryPressed = false;
+  bool isPickToMovie = false;
 
   @override
   void initState() {
@@ -68,7 +71,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
     setState(() {
       isCameraPressed = true;
     });
-    print("isRecordingVideo: ${_controller.value.isRecordingVideo}");
     // ビデオ撮影を停止
     final movie = await _controller.stopVideoRecording();
     // 写真撮影
@@ -91,6 +93,63 @@ class _RegistrationPageState extends State<RegistrationPage> {
     });
   }
 
+  // 画像と動画をライブラリから選択
+  Future<void> onOpenLibraryButtonPressed() async {
+    setState(() {
+      isLiblaryPressed = true;
+    });
+
+    final ImagePicker picker = ImagePicker();
+
+    // 画像を選択
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+
+    _controller.value.isRecordingVideo
+        ? _controller.stopVideoRecording()
+        : print("---------Not recording");
+    // 画像が選択されたかどうかを確認
+    if (image != null) {
+      isPickToMovie = true;
+      print("HOGEHOGE IS RECO ${_controller.value.isRecordingVideo}");
+      // _controller.stopVideoRecording();
+      sleep(const Duration(milliseconds: 500));
+      isPickToMovie = false;
+      print("Image selected: ${image.path}");
+
+      // 画像が選択された後に動画を選択
+      final XFile? movie = await picker.pickVideo(source: ImageSource.gallery);
+      // 動画が選択されたかどうかを確認
+      if (movie != null) {
+        print("Movie selected: ${movie.path}");
+
+        // 5秒前の動画をトリミング
+        await trimLastFiveSeconds(movie.path);
+
+        // 撮影した画像とビデオのファイルパスを次の画面に渡す
+        await Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => DisplayPictureScreen(
+              imagePath: image.path,
+              cameraController: _controller,
+            ),
+            fullscreenDialog: true,
+          ),
+        );
+      } else {
+        print("No movie selected.");
+        !_controller.value.isRecordingVideo
+            ? _controller.startVideoRecording()
+            : print("---------recording");
+      }
+    } else {
+      print("No image selected.");
+    }
+
+    setState(() {
+      isLiblaryPressed = false;
+    });
+  }
+
   Future<String> calculateStartTime(String videoPath) async {
     String startTime = "0"; // デフォルトの開始時間
 
@@ -102,12 +161,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
 
       // メタデータから動画の長さ（duration）を取得
       final duration = properties?["format"]["duration"];
-      print("Duration: $duration");
-
       if (duration != null) {
         final durationInSeconds = double.parse(duration).floor(); // 秒単位に変換
-        print("Duration in seconds: $durationInSeconds");
-
         if (durationInSeconds > 5) {
           // 動画の長さが5秒より長い場合、最後の5秒を抽出
           startTime = (durationInSeconds - 5).toString();
@@ -181,9 +236,9 @@ class _RegistrationPageState extends State<RegistrationPage> {
                 child: FutureBuilder<void>(
                   future: _initializeControllerFuture,
                   builder: (context, snapshot) {
-                    print(_controller.value);
                     if (snapshot.connectionState == ConnectionState.done &&
-                        _controller.value.isInitialized) {
+                        _controller.value.isInitialized &&
+                        isPickToMovie == false) {
                       return AspectRatio(
                         aspectRatio: _controller.value.aspectRatio,
                         child: CameraPreview(
@@ -227,7 +282,11 @@ class _RegistrationPageState extends State<RegistrationPage> {
                   color: Colors.white, // Set the icon color
                   iconSize: 24.0, // Increase the size of the icon
                   // onPressed: () => _getImage(ImageSource.gallery),
-                  onPressed: () => print('camera'),
+                  onPressed: isLiblaryPressed
+                      ? () {}
+                      : () async {
+                          await onOpenLibraryButtonPressed();
+                        },
                 ),
               ),
             ),
@@ -276,36 +335,41 @@ class _DisplayPictureScreenState extends State<DisplayPictureScreen> {
                 Navigator.of(context).pop();
               }),
         ),
-        body: Column(
-          children: <Widget>[
-            GestureDetector(
-              onLongPressStart: (_) {
-                setState(() {
-                  _controller.play();
-                });
-              },
-              onLongPress: () {
-                setState(() {
-                  sleep(const Duration(milliseconds: 500));
-                  isImagePressed = true;
-                });
-              },
-              onLongPressEnd: (_) {
-                setState(() {
-                  isImagePressed = false;
-                  _controller.seekTo(const Duration(milliseconds: 300));
-                });
-              },
-              child: _controller.value.isInitialized
-                  ? isImagePressed == false
-                      ? Image.file(File(widget.imagePath))
-                      : AspectRatio(
-                          aspectRatio: _controller.value.aspectRatio,
-                          child: VideoPlayer(_controller),
-                        )
-                  : const CircularProgressIndicator(),
-            ),
-          ],
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Expanded(
+                child: GestureDetector(
+                  onLongPressStart: (_) {
+                    setState(() {
+                      _controller.play();
+                    });
+                  },
+                  onLongPress: () {
+                    setState(() {
+                      sleep(const Duration(milliseconds: 500));
+                      isImagePressed = true;
+                    });
+                  },
+                  onLongPressEnd: (_) {
+                    setState(() {
+                      isImagePressed = false;
+                      _controller.seekTo(const Duration(milliseconds: 300));
+                    });
+                  },
+                  child: _controller.value.isInitialized
+                      ? isImagePressed == false
+                          ? Image.file(File(widget.imagePath))
+                          : AspectRatio(
+                              aspectRatio: _controller.value.aspectRatio,
+                              child: VideoPlayer(_controller),
+                            )
+                      : const CircularProgressIndicator(),
+                ),
+              )
+            ],
+          ),
         ),
         floatingActionButton: ProgressButton.icon(
           iconedButtons: {
@@ -343,9 +407,6 @@ class _DisplayPictureScreenState extends State<DisplayPictureScreen> {
               outputPath,
               '${DateTime.now().millisecondsSinceEpoch}',
             );
-
-            print("uploadedImageURL: $uploadedImageURL");
-            print("uploadedVideoURL: $uploadedVideoURL");
 
             final registrationRepository = RegistrationRepository();
             await registrationRepository.postUploadFile(
