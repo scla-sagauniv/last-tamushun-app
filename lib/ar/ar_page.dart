@@ -112,9 +112,17 @@ class ARPageState extends ConsumerState<ARPage> {
       }
     }
 
+    void onNodeTapHandler(List<String> nodesList) {
+      final nodeName = nodesList.first;
+      if (nodeName.startsWith('gallery/')) {
+        galleryTapHandler(context, nodeName, videoPictures);
+      }
+    }
+
     void onARKitViewCreated(ARKitController arkitController) {
       this.arkitController = arkitController;
       arkitController.onAddNodeForAnchor = onAnchorWasFound;
+      arkitController.onNodeTap = onNodeTapHandler;
       setState(() {
         galleryButton = Gallery(
           videoPictures: videoPictures,
@@ -133,6 +141,7 @@ class ARPageState extends ConsumerState<ARPage> {
                   ))
               .toList(),
           onARKitViewCreated: onARKitViewCreated,
+          enableTapRecognizer: true,
         ),
         Text(
           "referenceImageName: $referenceImageName",
