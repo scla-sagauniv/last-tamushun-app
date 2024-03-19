@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -15,6 +18,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
   CameraDescription? camera;
   late CameraController _controller;
   Future<void>? _initializeControllerFuture;
+  bool isCameraPressed = false;
 
   @override
   void initState() {
@@ -29,11 +33,37 @@ class _RegistrationPageState extends State<RegistrationPage> {
       camera!,
       ResolutionPreset.veryHigh,
     );
-    _initializeControllerFuture = _controller.initialize();
-    print(_controller);
-
+    _initializeControllerFuture = _controller.initialize().then((_) {
+      // カメラ初期化後にビデオ撮影を開始
+      if (_controller.value.isInitialized) {
+        _controller.startVideoRecording();
+      }
+    });
     setState(() {
       _controller = _controller;
+    });
+  }
+
+  // 写真撮影ボタンが押されたときの処理
+  Future<void> onCaptureButtonPressed() async {
+    setState(() {
+      isCameraPressed = true;
+    });
+    // ビデオ撮影を停止
+    final movie = await _controller.stopVideoRecording();
+    // 写真撮影
+    final image = await _controller.takePicture();
+
+    // 撮影した写真とビデオのファイルパスを次の画面に渡す
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) =>
+            DisplayPictureScreen(imagePath: image.path, moviePath: movie.path),
+        fullscreenDialog: true,
+      ),
+    );
+    setState(() {
+      isCameraPressed = false;
     });
   }
 
@@ -78,6 +108,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.done &&
                         _controller.value.isInitialized) {
+                      // setState(() {});
+                      print(_controller.value.isRecordingVideo);
                       return AspectRatio(
                         aspectRatio: _controller.value.aspectRatio,
                         child: CameraPreview(
@@ -104,10 +136,11 @@ class _RegistrationPageState extends State<RegistrationPage> {
                   color: Colors.white, // Set the icon color
                   iconSize: 24.0, // Increase the size of the icon
                   // onPressed: () => _getImage(ImageSource.camera),
-                  onPressed: () {
-                    final image = _controller.takePicture();
-                    print(image);
-                  },
+                  onPressed: isCameraPressed
+                      ? null
+                      : () async {
+                          await onCaptureButtonPressed();
+                        },
                 ),
               ),
             ),
@@ -131,7 +164,42 @@ class _RegistrationPageState extends State<RegistrationPage> {
   }
 }
 
+// 撮影した写真を表示する画面
+class DisplayPictureScreen extends StatelessWidget {
+  const DisplayPictureScreen(
+      {super.key, required this.imagePath, required this.moviePath});
 
+  final String imagePath;
+  final String moviePath;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('撮れた写真')),
+      body: Column(
+        children: <Widget>[
+          // 画像と動画を表示
+          Image.file(File(imagePath)),
+          Text(imagePath),
+          Text(moviePath),
+
+          TextButton(
+            onPressed: () {
+              context.go('/registration');
+            },
+            child: const Text('再撮影'),
+          ),
+          TextButton(
+            onPressed: () {
+              context.go('/registration');
+            },
+            child: const Text('登録'),
+          ),
+        ],
+      ),
+    );
+  }
+}
 
   // Future<void> _getImage(ImageSource source) async {
   //   final pickedFile = await picker.pickImage(source: source);
