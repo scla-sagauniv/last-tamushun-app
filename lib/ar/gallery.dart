@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:arkit_plugin/arkit_plugin.dart';
 import 'package:flutter/material.dart';
-import 'package:last_tamushun_app/models/video_picture.dart';
+import 'package:openapi/api.dart';
 import 'package:vector_math/vector_math_64.dart' as vector;
 
 class Gallery extends StatefulWidget {
@@ -10,7 +10,7 @@ class Gallery extends StatefulWidget {
       {super.key, required this.videoPictures, required this.arkitController});
 
   final ARKitController arkitController;
-  final List<VideoPicture> videoPictures;
+  final List<Media> videoPictures;
 
   @override
   State<Gallery> createState() => _GalleryState();
@@ -41,7 +41,7 @@ class _GalleryState extends State<Gallery> {
             height: pictureNodeWidth * (9 / 16),
             materials: [
               ARKitMaterial(
-                diffuse: ARKitMaterialImage(videoPicture.value.pictureUrl),
+                diffuse: ARKitMaterialImage(videoPicture.value.imageUrl),
                 doubleSided: true,
               ),
             ],

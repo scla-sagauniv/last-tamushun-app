@@ -1,0 +1,451 @@
+openapi: 3.1.0
+info:
+  version: '1.0'
+  title: Brachio
+  summary: ''
+servers:
+  - url: 'http://localhost:3000'
+paths:
+  '/users/{userId}':
+    get:
+      summary: Get User Info by User ID
+      description: Retrieve the information of the user with the matching user ID.
+      operationId: get-users-userId
+      parameters:
+        - $ref: '#/components/parameters/Authorization'
+        - name: userId
+          in: path
+          description: Id of an existing user.
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: User Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  name:
+                    type: string
+                  email:
+                    type: string
+              examples:
+                Example 1:
+                  value:
+                    id: 0
+                    name: string
+                    email: string
+        '404':
+          description: User Not Found
+      servers:
+        - url: 'http://localhost:3000'
+    patch:
+      summary: Update User Information
+      description: Update the information of an existing user.
+      operationId: patch-users-userId
+      parameters:
+        - $ref: '#/components/parameters/Authorization'
+        - name: userId
+          in: path
+          description: Id of an existing user.
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        description: Patch user properties to update.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                  description: 'If a new email is given, the user''s email verified property will be set to false.'
+            examples:
+              Update Name:
+                value:
+                  name: name
+              Update Email:
+                value:
+                  email: rebecca@gmail.com
+      responses:
+        '200':
+          description: User Updated
+          content:
+            application/json:
+              schema:
+                type: object
+              examples:
+                Example 1:
+                  value:
+                    id: 1
+                    name: Smith
+                    email: alice.smith@gmail.com
+        '404':
+          description: User Not Found
+        '409':
+          description: Email Already Taken
+      servers:
+        - url: 'http://localhost:3000'
+  /signup:
+    post:
+      summary: Create New User
+      description: Create a new user.
+      operationId: post-user
+      requestBody:
+        description: Post the necessary fields for the API to create a new user.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                hashed_password:
+                  type: string
+              required:
+                - name
+                - email
+                - hashed_password
+            examples:
+              Example 1:
+                value:
+                  name: string
+                  email: string
+                  hashed_password: string
+      responses:
+        '201':
+          description: User Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+        '400':
+          description: Missing Required Information
+        '409':
+          description: Email Already Taken
+      servers:
+        - url: 'http://localhost:3000'
+  /media:
+    get:
+      summary: Get Medias
+      operationId: get-media
+      parameters:
+        - $ref: '#/components/parameters/Authorization'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  medium:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Media'
+              examples:
+                Example 1:
+                  value:
+                    medium:
+                      - id: 100
+                        user_id: 0
+                        movie_url: 'https://www.shutterstock.com/shutterstock/videos/25392752/preview/stock-footage-a-litte-giant-panda-in-the-breeding-center.mp4'
+                        image_url: 'https://http.cat/images/100.jpg'
+                      - id: 101
+                        user_id: 0
+                        movie_url: 'https://www.shutterstock.com/shutterstock/videos/25392743/preview/stock-footage-red-panda-or-lesser-panda-or-red-bear-cat-or-red-cat-bear-in-the-zoo.mp4'
+                        image_url: 'https://http.cat/images/101.jpg'
+                      - id: 102
+                        user_id: 0
+                        movie_url: 'https://www.shutterstock.com/shutterstock/videos/25392761/preview/stock-footage-red-panda-or-lesser-panda-or-red-bear-cat-or-red-cat-bear-in-the-zoo.mp4'
+                        image_url: 'https://http.cat/images/102.jpg'
+                      - id: 103
+                        user_id: 0
+                        movie_url: 'https://www.shutterstock.com/shutterstock/videos/335698/preview/stock-footage-microwave.mp4'
+                        image_url: 'https://http.cat/images/103.jpg'
+                      - id: 200
+                        user_id: 0
+                        movie_url: 'https://www.shutterstock.com/shutterstock/videos/7286/preview/stock-footage-cats-playing.mp4'
+                        image_url: 'https://http.cat/images/200.jpg'
+                      - id: 201
+                        user_id: 0
+                        movie_url: 'https://www.shutterstock.com/shutterstock/videos/17515120/preview/stock-footage-dog-and-cat-facing-off-in-vets-office-s.mp4'
+                        image_url: 'https://http.cat/images/201.jpg'
+                      - id: 202
+                        user_id: 0
+                        movie_url: 'https://www.shutterstock.com/shutterstock/videos/14029958/preview/stock-footage-cat-jumping-on-desk.mp4'
+                        image_url: 'https://http.cat/images/202.jpg'
+                      - id: 203
+                        user_id: 0
+                        movie_url: 'https://www.shutterstock.com/shutterstock/videos/5680961/preview/stock-footage-lion-eating-antelope.mp4'
+                        image_url: 'https://http.cat/images/203.jpg'
+                      - id: 204
+                        user_id: 0
+                        movie_url: 'https://www.shutterstock.com/shutterstock/videos/5683073/preview/stock-footage-lion-eating-antelope.mp4'
+                        image_url: 'https://http.cat/images/204.jpg'
+                      - id: 205
+                        user_id: 0
+                        movie_url: 'https://www.shutterstock.com/shutterstock/videos/17513908/preview/stock-footage-kitten-walking-across-mantel-in-front-of-clock-s.mp4'
+                        image_url: 'https://http.cat/images/205.jpg'
+                      - id: 206
+                        user_id: 0
+                        movie_url: 'https://www.shutterstock.com/shutterstock/videos/9631691/preview/stock-footage-dog-chihuahua-playing-in-a-field.mp4'
+                        image_url: 'https://http.cat/images/206.jpg'
+                      - id: 207
+                        user_id: 0
+                        movie_url: 'https://www.shutterstock.com/shutterstock/videos/65395/preview/stock-footage-cat-sitting-on-a-carved-pumpkin-with-blinking-faces.mp4'
+                        image_url: 'https://http.cat/images/207.jpg'
+                      - id: 208
+                        user_id: 0
+                        movie_url: 'https://www.shutterstock.com/shutterstock/videos/7291/preview/stock-footage-cats-playing.mp4'
+                        image_url: 'https://http.cat/images/208.jpg'
+        '404':
+          description: Not Found
+      servers:
+        - url: 'http://localhost:3000'
+    post:
+      summary: Create New Media
+      operationId: post-media
+      parameters:
+        - $ref: '#/components/parameters/Authorization'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                image_url:
+                  type: string
+                movie_url:
+                  type: string
+                lat:
+                  type: integer
+                lon:
+                  type: integer
+            examples:
+              Example 1:
+                value:
+                  image_url: string
+                  movie_url: string
+                  lat: 0
+                  lon: 0
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Media'
+              examples:
+                Example 1:
+                  value:
+                    id: 100
+                    user_id: 0
+                    movie_url: 'https://www.shutterstock.com/shutterstock/videos/25392752/preview/stock-footage-a-litte-giant-panda-in-the-breeding-center.mp4'
+                    image_url: 'https://http.cat/images/100.jpg'
+      servers:
+        - url: 'http://localhost:3000'
+  '/media/{mediaId}':
+    delete:
+      summary: Delete Media
+      operationId: delete-medium-mediaId
+      parameters:
+        - $ref: '#/components/parameters/Authorization'
+        - name: mediaId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: No Content
+        '404':
+          description: Not Found
+      servers:
+        - url: 'http://localhost:3000'
+    patch:
+      summary: Update Media Info
+      operationId: patch-medium-mediaId
+      parameters:
+        - $ref: '#/components/parameters/Authorization'
+        - name: mediaId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                image_url:
+                  type: string
+                movie_url:
+                  type: string
+                lat:
+                  type: integer
+                lon:
+                  type: integer
+            examples:
+              Example 1:
+                value:
+                  image_url: string
+                  movie_url: string
+                  lat: 0
+                  lon: 0
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Media'
+              examples:
+                Example 1:
+                  value:
+                    id: 0
+                    user_id: 0
+                    image_url: string
+                    movie_url: string
+        '400':
+          description: Bad Request
+      servers:
+        - url: 'http://localhost:3000'
+  /login:
+    post:
+      summary: Login
+      operationId: post-login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+            examples:
+              Example 1:
+                value:
+                  email: hoge@gmail.com
+                  password: ecb666d778725ec97307044d642bf4d160aabb76f56c0069c71ea25b1e926825
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+              examples:
+                Example 1:
+                  value:
+                    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjAwMSIsIm5hbWUiOiJoYWtreSIsImVtYWlsIjoiaGFra3lAZW1haWwuY29tIn0.AvLXzyxzX4Jy0rzDcHWWQeMC57N4dGqf6sXyYQOkyEg
+        '404':
+          description: Not Found
+      servers:
+        - url: 'http://localhost:3000'
+components:
+  parameters:
+    Authorization:
+      name: Authorization
+      in: header
+      description: 'format: [Bearer <token>]'
+      required: true
+      schema:
+        type: string
+  schemas:
+    Media:
+      type: object
+      title: Media
+      properties:
+        id:
+          type: integer
+        user_id:
+          type: integer
+        image_url:
+          type: string
+        movie_url:
+          type: string
+        lat:
+          type:
+            - integer
+            - 'null'
+        lon:
+          type:
+            - integer
+            - 'null'
+      required:
+        - id
+        - user_id
+        - image_url
+        - movie_url
+      examples:
+        - id: 100
+          user_id: 0
+          movie_url: 'https://www.shutterstock.com/shutterstock/videos/25392752/preview/stock-footage-a-litte-giant-panda-in-the-breeding-center.mp4'
+          image_url: 'https://http.cat/images/100.jpg'
+        - id: 101
+          user_id: 0
+          movie_url: 'https://www.shutterstock.com/shutterstock/videos/25392743/preview/stock-footage-red-panda-or-lesser-panda-or-red-bear-cat-or-red-cat-bear-in-the-zoo.mp4'
+          image_url: 'https://http.cat/images/101.jpg'
+        - id: 102
+          user_id: 0
+          movie_url: 'https://www.shutterstock.com/shutterstock/videos/25392761/preview/stock-footage-red-panda-or-lesser-panda-or-red-bear-cat-or-red-cat-bear-in-the-zoo.mp4'
+          image_url: 'https://http.cat/images/102.jpg'
+        - id: 103
+          user_id: 0
+          movie_url: 'https://www.shutterstock.com/shutterstock/videos/335698/preview/stock-footage-microwave.mp4'
+          image_url: 'https://http.cat/images/103.jpg'
+        - id: 200
+          user_id: 0
+          movie_url: 'https://www.shutterstock.com/shutterstock/videos/7286/preview/stock-footage-cats-playing.mp4'
+          image_url: 'https://http.cat/images/200.jpg'
+        - id: 201
+          user_id: 0
+          movie_url: 'https://www.shutterstock.com/shutterstock/videos/17515120/preview/stock-footage-dog-and-cat-facing-off-in-vets-office-s.mp4'
+          image_url: 'https://http.cat/images/201.jpg'
+        - id: 202
+          user_id: 0
+          movie_url: 'https://www.shutterstock.com/shutterstock/videos/14029958/preview/stock-footage-cat-jumping-on-desk.mp4'
+          image_url: 'https://http.cat/images/202.jpg'
+        - id: 203
+          user_id: 0
+          movie_url: 'https://www.shutterstock.com/shutterstock/videos/5680961/preview/stock-footage-lion-eating-antelope.mp4'
+          image_url: 'https://http.cat/images/203.jpg'
+        - id: 204
+          user_id: 0
+          movie_url: 'https://www.shutterstock.com/shutterstock/videos/5683073/preview/stock-footage-lion-eating-antelope.mp4'
+          image_url: 'https://http.cat/images/204.jpg'
+        - id: 205
+          user_id: 0
+          movie_url: 'https://www.shutterstock.com/shutterstock/videos/17513908/preview/stock-footage-kitten-walking-across-mantel-in-front-of-clock-s.mp4'
+          image_url: 'https://http.cat/images/205.jpg'
+        - id: 206
+          user_id: 0
+          movie_url: 'https://www.shutterstock.com/shutterstock/videos/9631691/preview/stock-footage-dog-chihuahua-playing-in-a-field.mp4'
+          image_url: 'https://http.cat/images/206.jpg'
+        - id: 207
+          user_id: 0
+          movie_url: 'https://www.shutterstock.com/shutterstock/videos/65395/preview/stock-footage-cat-sitting-on-a-carved-pumpkin-with-blinking-faces.mp4'
+          image_url: 'https://http.cat/images/207.jpg'
+        - id: 208
+          user_id: 0
+          movie_url: 'https://www.shutterstock.com/shutterstock/videos/7291/preview/stock-footage-cats-playing.mp4'
+          image_url: 'https://http.cat/images/208.jpg'

@@ -3,10 +3,11 @@ import 'dart:math';
 
 import 'package:arkit_plugin/arkit_plugin.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:last_tamushun_app/ar/gallery.dart';
-import 'package:last_tamushun_app/models/video_picture.dart';
 import 'package:last_tamushun_app/repositorys/video_picture_repository.dart';
+import 'package:openapi/api.dart';
 
 class ARPage extends ConsumerStatefulWidget {
   const ARPage({super.key});
@@ -16,22 +17,26 @@ class ARPage extends ConsumerStatefulWidget {
 }
 
 class ARPageState extends ConsumerState<ARPage> {
-  late ARKitController arkitController;
+  ARKitController? arkitController;
   late String referenceImageName = '';
-  late Future<List<VideoPicture>> videoPicturesFuture;
-  late VideoPicture videoPictures;
+  late Future<List<Media>> videoPicturesFuture;
+  late Media videoPictures;
   Widget? galleryButton;
 
   @override
   void initState() {
     super.initState();
     final videoPictureRepository = ref.read(videoPictureRepositoryProvider);
-    videoPicturesFuture = videoPictureRepository.getVideoPicture();
+    try {
+      videoPicturesFuture = videoPictureRepository.getVideoPicture();
+    } catch (e) {
+      context.go('/error');
+    }
   }
 
   @override
   void dispose() {
-    arkitController.dispose();
+    arkitController?.dispose();
     super.dispose();
   }
 
@@ -45,7 +50,7 @@ class ARPageState extends ConsumerState<ARPage> {
         ),
         floatingActionButton: galleryButton ?? const SizedBox(),
         body: snapshot.connectionState == ConnectionState.done
-            ? _builder(snapshot.data!)
+            ? _builder(snapshot.data)
             : Column(
                 children: [
                   const CircularProgressIndicator(),
@@ -56,8 +61,17 @@ class ARPageState extends ConsumerState<ARPage> {
     );
   }
 
-  Widget _builder(List<VideoPicture> videoPictures) {
+  Widget _builder(List<Media>? videoPictures) {
+    if (videoPictures == null) {
+      context.go('/error');
+      return const Text('Failed to get video pictures');
+    }
+
     void onAnchorWasFound(ARKitAnchor anchor) {
+      if (arkitController == null) {
+        return;
+      }
+
       if (anchor is ARKitImageAnchor) {
         setState(() {
           referenceImageName = anchor.referenceImageName ?? '';
@@ -66,8 +80,8 @@ class ARPageState extends ConsumerState<ARPage> {
           return;
         }
         final referencedPictureVideoUrl = videoPictures
-            .firstWhere((e) => e.pictureUrl == referenceImageName)
-            .videoUrl;
+            .firstWhere((e) => e.imageUrl == referenceImageName)
+            .movieUrl;
         final imageSize = anchor.referenceImagePhysicalSize;
 
         final video = ARKitMaterialProperty.video(
@@ -94,7 +108,7 @@ class ARPageState extends ConsumerState<ARPage> {
           geometry: plane,
           transformation: detectedTransform,
         );
-        arkitController.add(node);
+        arkitController?.add(node);
       }
     }
 
@@ -114,7 +128,7 @@ class ARPageState extends ConsumerState<ARPage> {
         ARKitSceneView(
           detectionImages: videoPictures
               .map((e) => ARKitReferenceImage(
-                    name: e.pictureUrl,
+                    name: e.imageUrl,
                     physicalWidth: 0.2,
                   ))
               .toList(),

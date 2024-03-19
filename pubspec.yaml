@@ -40,8 +40,9 @@ dependencies:
   vector_math: ^2.1.4
   hooks_riverpod: ^2.5.1
   flutter_hooks: ^0.20.5
-  http: ^1.2.1
   shared_preferences: ^2.2.2
+  openapi:
+    path: ./openapi
 
 dev_dependencies:
   flutter_test:

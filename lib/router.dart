@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:last_tamushun_app/ar/ar_page.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:last_tamushun_app/authentication/auth_page.dart';
+import 'package:last_tamushun_app/error_page.dart';
 import 'package:last_tamushun_app/home/home_page.dart';
 import 'package:last_tamushun_app/registration/registration_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -56,6 +57,10 @@ final routerProvider = Provider((ref) {
       GoRoute(
         path: '/ar',
         builder: (context, state) => const ARPage(),
+      ),
+      GoRoute(
+        path: '/error',
+        builder: (context, state) => const ErrorPage(),
       ),
     ],
     redirect: (context, state) async {
