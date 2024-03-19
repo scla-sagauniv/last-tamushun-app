@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:last_tamushun_app/hooks/logout.dart';
 import 'package:last_tamushun_app/repositorys/storage_repository.dart';
-import 'dart:math' as math;
 
 class RegistrationPage extends StatefulWidget {
   const RegistrationPage({super.key});
@@ -31,6 +30,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
       ResolutionPreset.veryHigh,
     );
     _initializeControllerFuture = _controller.initialize();
+    print(_controller);
 
     setState(() {
       _controller = _controller;
@@ -70,31 +70,16 @@ class _RegistrationPageState extends State<RegistrationPage> {
         body: Stack(
           children: <Widget>[
             if (_initializeControllerFuture != null)
-              OverflowBox(
+              Container(
+                width: double.infinity,
+                height: double.infinity,
                 child: FutureBuilder<void>(
                   future: _initializeControllerFuture,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.done &&
                         _controller.value.isInitialized) {
-                      var tmp = MediaQuery.of(context).size;
-                      final screenH = math.max(tmp.height, tmp.width);
-                      final screenW = math.min(tmp.height, tmp.width);
-                      tmp = _controller.value.previewSize!;
-                      final previewH = math.max(tmp.height, tmp.width);
-                      final previewW = math.min(tmp.height, tmp.width);
-                      final screenRatio = screenH / screenW;
-                      final previewRatio = previewH / previewW;
-
-                      final maxHeight = screenRatio > previewRatio
-                          ? screenH
-                          : screenW / previewW * previewH;
-                      final maxWidth = screenRatio > previewRatio
-                          ? screenH / previewH * previewW
-                          : screenW;
-
-                      return OverflowBox(
-                        maxHeight: maxHeight,
-                        maxWidth: maxWidth,
+                      return AspectRatio(
+                        aspectRatio: _controller.value.aspectRatio,
                         child: CameraPreview(
                           _controller,
                         ),
@@ -119,7 +104,10 @@ class _RegistrationPageState extends State<RegistrationPage> {
                   color: Colors.white, // Set the icon color
                   iconSize: 24.0, // Increase the size of the icon
                   // onPressed: () => _getImage(ImageSource.camera),
-                  onPressed: () => print('camera'),
+                  onPressed: () {
+                    final image = _controller.takePicture();
+                    print(image);
+                  },
                 ),
               ),
             ),
