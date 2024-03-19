@@ -87,7 +87,7 @@ class GalleryDialog extends StatefulWidget {
 class _GalleryDialogState extends State<GalleryDialog> {
   late VideoPlayerController videoController;
   late String imageUrl;
-  bool isPlaing = false;
+  bool isPlaying = false;
 
   Future<void> _onVideoEndListener() async {
     if (videoController.value.isInitialized &&
@@ -96,7 +96,7 @@ class _GalleryDialogState extends State<GalleryDialog> {
         videoController.value.duration <= videoController.value.position) {
       await videoController.pause();
       await videoController.seekTo(const Duration(seconds: 0));
-      isPlaing = false;
+      isPlaying = false;
       if (!mounted) return;
       setState(() {});
     }
@@ -128,18 +128,18 @@ class _GalleryDialogState extends State<GalleryDialog> {
             height: 480,
             fit: BoxFit.fitWidth,
           ),
-          isPlaing
+          isPlaying
               ? AspectRatio(
                   aspectRatio: videoController.value.aspectRatio,
                   child: VideoPlayer(videoController),
                 )
               : const SizedBox(),
-          !isPlaing
+          !isPlaying
               ? IconButton(
                   onPressed: () async {
-                    if (!isPlaing) {
+                    if (!isPlaying) {
                       await videoController.play();
-                      isPlaing = true;
+                      isPlaying = true;
                     }
                     setState(() {});
                   },
