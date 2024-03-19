@@ -49,6 +49,13 @@ class _GalleryState extends State<Gallery> {
     stpowatch.start();
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+    widget.arkitController.onNodePan = null;
+    stpowatch.stop();
+  }
+
   void showHandler() async {
     if (isShowing) {
       for (int i = 0; i < widget.videoPictures.length; i++) {
