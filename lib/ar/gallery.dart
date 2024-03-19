@@ -23,7 +23,7 @@ class _GalleryState extends State<Gallery> {
   void showHandler() async {
     if (isShowing) {
       for (int i = 0; i < widget.videoPictures.length; i++) {
-        widget.arkitController.remove(i.toString());
+        widget.arkitController.remove("gallery/$i");
       }
     } else {
       vector.Vector3 cameraPosition =
