@@ -97,6 +97,7 @@ class _GalleryDialogState extends State<GalleryDialog> {
       await videoController.pause();
       await videoController.seekTo(const Duration(seconds: 0));
       isPlaing = false;
+      if (!mounted) return;
       setState(() {});
     }
   }
