@@ -4,6 +4,7 @@ import 'package:arkit_plugin/arkit_plugin.dart';
 import 'package:flutter/material.dart';
 import 'package:openapi/api.dart';
 import 'package:vector_math/vector_math_64.dart' as vector;
+import 'package:video_player/video_player.dart';
 
 class Gallery extends StatefulWidget {
   const Gallery(
@@ -72,30 +73,91 @@ class _GalleryState extends State<Gallery> {
   }
 }
 
-void galleryTapHandler(
-    BuildContext context, String nodeName, List<Media> videoPictures) {
-  final pictureIndex = int.parse(nodeName.split("/").last);
-  final imageUrl = videoPictures[pictureIndex].imageUrl;
+class GalleryDialog extends StatefulWidget {
+  const GalleryDialog(
+      {super.key, required this.videoPictures, required this.nodeName});
 
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-          content: Stack(
-        alignment: Alignment.center,
-        children: [
+  final String nodeName;
+  final List<Media> videoPictures;
+
+  @override
+  State<GalleryDialog> createState() => _GalleryDialogState();
+}
+
+class _GalleryDialogState extends State<GalleryDialog> {
+  late VideoPlayerController videoController;
+  late String imageUrl;
+  bool isPlaing = false;
+
+  Future<void> _onVideoEndListener() async {
+    if (videoController.value.isInitialized &&
+        !videoController.value.isBuffering &&
+        !videoController.value.isPlaying &&
+        videoController.value.duration <= videoController.value.position) {
+      await videoController.pause();
+      await videoController.seekTo(const Duration(seconds: 0));
+      isPlaing = false;
+      setState(() {});
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    final pictureIndex = int.parse(widget.nodeName.split("/").last);
+    imageUrl = widget.videoPictures[pictureIndex].imageUrl;
+    final movieUrl = widget.videoPictures[pictureIndex].movieUrl;
+    videoController = VideoPlayerController.networkUrl(Uri.parse(movieUrl));
+    videoController.addListener(_onVideoEndListener);
+    videoController.initialize().then((_) {
+      // Ensure the first frame is shown after the video is initialized, even before the play button has been pressed.
+      setState(() {});
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+      future: videoController.initialize(),
+      builder: (context, snapshot) => AlertDialog(
+        content: Stack(alignment: Alignment.center, children: [
           Image.network(
             imageUrl,
             width: 640,
             height: 480,
             fit: BoxFit.fitWidth,
           ),
-          ElevatedButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Icon(Icons.close),
-          ),
-        ],
-      ));
-    },
+          isPlaing
+              ? AspectRatio(
+                  aspectRatio: videoController.value.aspectRatio,
+                  child: VideoPlayer(videoController),
+                )
+              : const SizedBox(),
+          !isPlaing
+              ? IconButton(
+                  onPressed: () async {
+                    if (!isPlaing) {
+                      await videoController.play();
+                      isPlaing = true;
+                    }
+                    setState(() {});
+                  },
+                  icon: const Icon(Icons.play_circle_outlined),
+                  iconSize: 80,
+                  color: Colors.white60,
+                )
+              : const SizedBox(),
+        ]),
+      ),
+    );
+  }
+}
+
+void galleryTapHandler(
+    BuildContext context, String nodeName, List<Media> videoPictures) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) =>
+        GalleryDialog(videoPictures: videoPictures, nodeName: nodeName),
   );
 }
