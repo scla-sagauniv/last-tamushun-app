@@ -37,44 +37,37 @@ class _HomePageState extends State<HomePage> {
           margin: const EdgeInsets.all(16),
           width: double.infinity,
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               SizedBox(
                 width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () => context.push('/location-browsing'),
-                  child: const Text('location_browsing'),
-                ),
-              ),
-              const SizedBox(height: 16),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () => context.push('/picture-browsing'),
-                  child: const Text('picture_browsing'),
-                ),
-              ),
-              const SizedBox(height: 16),
-              SizedBox(
-                width: double.infinity,
+                height: 100,
                 child: ElevatedButton(
                   onPressed: () => context.push('/registration'),
-                  child: const Text('registration'),
+                  style: ButtonStyle(
+                    backgroundColor:
+                        MaterialStateProperty.all(Colors.lightBlue),
+                  ),
+                  child: const Text(
+                    'Registration',
+                    style: TextStyle(fontSize: 30, color: Colors.white),
+                  ),
                 ),
               ),
               const SizedBox(height: 16),
               SizedBox(
                 width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () => context.push('/ar-gallery'),
-                  child: const Text('ar-gallery'),
-                ),
-              ),
-              const SizedBox(height: 16),
-              SizedBox(
-                width: double.infinity,
+                height: 100,
                 child: ElevatedButton(
                   onPressed: () => context.push('/ar'),
-                  child: const Text('ar'),
+                  child: const Text(
+                    'AR Gallery',
+                    style: TextStyle(fontSize: 30),
+                  ),
+                  style: ButtonStyle(
+                    backgroundColor:
+                        MaterialStateProperty.all(Colors.orange[200]),
+                  ),
                 ),
               ),
             ],
