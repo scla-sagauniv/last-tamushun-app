@@ -47,6 +47,10 @@ class ARPageState extends ConsumerState<ARPage> {
       builder: (context, snapshot) => Scaffold(
         appBar: AppBar(
           title: const Text('Picture Browsing'),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => context.pop(),
+          ),
         ),
         floatingActionButton: galleryButton ?? const SizedBox(),
         body: snapshot.connectionState == ConnectionState.done
