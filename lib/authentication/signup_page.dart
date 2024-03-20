@@ -21,16 +21,18 @@ class _SignUpPageState extends State<SignUpPage> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     try {
       await authRepository.postSignUp(
-        nameController.text,
         emailController.text,
         passwordController.text,
+        nameController.text,
       );
+      if (!mounted) return; // ここでmountedをチェック
       GoRouter.of(context).go('/route_list');
     } catch (e) {
+      if (!mounted) return; // ここでもmountedをチェック
       setState(() {
         infoText = 'SignUp failed: ${e.toString()}';
       });
-      await prefs.setString('token', '');
+      await prefs.remove('token');
       GoRouter.of(context).go('/signup');
     }
   }
@@ -38,12 +40,7 @@ class _SignUpPageState extends State<SignUpPage> {
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
-          title: const Text('SignUp Page'),
-          leadingWidth: 110,
-          leading: TextButton(
-            child: const Text('＜ route_list'),
-            onPressed: () => context.go('/route_list'),
-          ),
+          title: const Text('新規登録'),
         ),
         body: Center(
           child: Container(
@@ -66,7 +63,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 ),
                 Text(infoText),
                 ElevatedButton(
-                  child: Text('サインアップ'),
+                  child: Text('新規登録'),
                   onPressed: signup, // ログイン関数を呼び出す
                 ),
                 ElevatedButton(

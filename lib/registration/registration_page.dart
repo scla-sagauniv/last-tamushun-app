@@ -398,10 +398,15 @@ class _DisplayPictureScreenState extends State<DisplayPictureScreen> {
             );
 
             final registrationRepository = RegistrationRepository();
-            await registrationRepository.postUploadFile(
-              uploadedImageURL!,
-              uploadedVideoURL!,
-            );
+            try {
+              await registrationRepository.postUploadFile(
+                uploadedImageURL!,
+                uploadedVideoURL!,
+              );
+            } catch (e) {
+              context.go('/error');
+            }
+
             await widget.cameraController.startVideoRecording();
             Navigator.of(context).pop();
             setState(() {

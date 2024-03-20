@@ -81,7 +81,7 @@ final routerProvider = Provider((ref) {
 
       // トークンが存在し、ログインやサインアップ以外のページにアクセスしようとしている場合はホームへリダイレクト
       if (token != null) {
-        return '/';
+        return null;
       }
 
       // トークンが存在しない場合は、ログインページにリダイレクト

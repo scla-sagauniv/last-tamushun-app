@@ -7,20 +7,23 @@ class AuthRepository {
 
   Future<void> postLogin(String email, String password) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    // final hashedPassword = Crypt.sha256(password);
-
+    final hashedPassword =
+        Crypt.sha256(password, salt: 'hgagjkdhgklajfklj').toString();
+    print("raw password is $password");
+    print("hashed password is $hashedPassword");
     try {
-      final postLoginRequest = PostLoginRequest(
+      final userLogin = UserLogin(
         email: email,
         // password: hashedPassword.toString(),
-        password: password,
+        hashedPassword: hashedPassword,
       );
-      final result =
-          await apiInstance.postLogin(postLoginRequest: postLoginRequest);
+      final result = await apiInstance.postLogin(userLogin: userLogin);
       if (result != null && result.token != null) {
+        print("token is ${result.token}");
         await prefs.setString('token', result.token!);
+      } else {
+        throw Exception('Failed to login');
       }
-      throw Exception('Failed to login');
     } catch (e) {
       print('Exception when calling DefaultApi->postLogin: $e\n');
       await prefs.remove('token');
@@ -30,14 +33,23 @@ class AuthRepository {
 
   Future<void> postSignUp(String email, String password, String name) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    final hashedPassword = Crypt.sha256(password);
+    final hashedPassword =
+        Crypt.sha256(password, salt: 'hgagjkdhgklajfklj').toString();
+    print("raw password is $password");
+    print("hashed password is $hashedPassword");
     try {
-      final postUserRequest = PostUserRequest(
+      final userCreate = UserCreate(
         email: email,
-        hashedPassword: hashedPassword.toString(),
+        hashedPassword: hashedPassword,
         name: name,
       );
-      await apiInstance.postUser(postUserRequest: postUserRequest);
+      final result = await apiInstance.postUser(userCreate: userCreate);
+      if (result != null && result.token != null) {
+        print("token is ${result.token}");
+        await prefs.setString('token', result.token!);
+      } else {
+        throw Exception('Failed to register');
+      }
     } catch (e) {
       print('Exception when calling DefaultApi->postRegister: $e\n');
       await prefs.remove('token');
@@ -45,3 +57,5 @@ class AuthRepository {
     }
   }
 }
+// $5$mYagyVfgIbkELDCv$Ape4G3du/rCMCfF7n690XNCxFhBanlZkSUa3N0UWuj2
+// $5$911xrWeEvria8VhB$VFVYJP5kawNRWdq7/sM5udcAuYT8CPLHJgjRK5F35m4

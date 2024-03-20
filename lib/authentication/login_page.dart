@@ -20,13 +20,15 @@ class _LoginPageState extends State<LoginPage> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     try {
       await authRepository.postLogin(
-          emailController.text, passwordController.text);
+        emailController.text,
+        passwordController.text,
+      );
       GoRouter.of(context).go('/route_list');
     } catch (e) {
       setState(() {
         infoText = 'Login failed: ${e.toString()}';
       });
-      await prefs.setString('token', '');
+      await prefs.remove('token');
       GoRouter.of(context).go('/login');
     }
   }
@@ -34,12 +36,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
-          title: const Text('Auth Page'),
-          leadingWidth: 110,
-          leading: TextButton(
-            child: const Text('＜ route_list'),
-            onPressed: () => context.go('/route_list'),
-          ),
+          title: const Text('ログイン'),
         ),
         body: Center(
           child: Container(
