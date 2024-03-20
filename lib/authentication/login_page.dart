@@ -23,7 +23,7 @@ class _LoginPageState extends State<LoginPage> {
         emailController.text,
         passwordController.text,
       );
-      GoRouter.of(context).go('/route_list');
+      GoRouter.of(context).go('/');
     } catch (e) {
       setState(() {
         infoText = 'Login failed: ${e.toString()}';

@@ -26,7 +26,7 @@ class _SignUpPageState extends State<SignUpPage> {
         nameController.text,
       );
       if (!mounted) return; // ここでmountedをチェック
-      GoRouter.of(context).go('/route_list');
+      GoRouter.of(context).go('/');
     } catch (e) {
       if (!mounted) return; // ここでもmountedをチェック
       setState(() {
