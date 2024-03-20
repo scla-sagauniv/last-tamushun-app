@@ -134,11 +134,16 @@ class _GalleryState extends State<Gallery> {
       return;
     }
     final oldCenterAnchorAngleX = centerAnchorNode.eulerAngles.x;
-    final newAngleX = panNode.translation.x / 100;
-    centerAnchorNode.eulerAngles = vector.Vector3(
-        oldCenterAnchorAngleX + (newAngleX - lastPanTranslationX), 0, 0);
-    lastPanTranslationX = newAngleX;
+    final newAngleX = panNode.translation.x / 300;
     lastPanTranslationXIncrement = newAngleX - lastPanTranslationX;
+    lastPanTranslationX = newAngleX;
+    if (lastPanTranslationXIncrement.abs() > 0.3) {
+      stpowatch.reset();
+      return;
+    }
+
+    centerAnchorNode.eulerAngles = vector.Vector3(
+        oldCenterAnchorAngleX + lastPanTranslationXIncrement, 0, 0);
 
     for (final (idx, pictureNode) in pictureNodes.indexed) {
       final oldPictureNode = pictureNode.eulerAngles;
@@ -159,8 +164,8 @@ class _GalleryState extends State<Gallery> {
     panTimer = Timer.periodic(const Duration(milliseconds: 50), (_) {
       if (!isPanning) return;
       if (lastPanTranslationX == lastObservedValue) {
+        panInertia(lastPanTranslationXIncrement);
         initValueForPan();
-        panInertia(lastObservedValue);
         lastObservedValue = 0;
         return;
       }
@@ -169,30 +174,35 @@ class _GalleryState extends State<Gallery> {
   }
 
   void panInertia(double translationXIncrement) {
-    if (translationXIncrement.abs() < 0.3) {
+    // 動作が安定せず，回転量が大きい場合は処理を終了
+    if (translationXIncrement.abs() > 0.3) {
       return;
     }
-    double decelerationRatio = 0.1;
-    final isMinus = translationXIncrement < 0;
+
+    // 減速率を回転量の変化量の変化量の逆数に設定
+    double decelerationRatio = 0.001;
     double lastIncrementValue = translationXIncrement;
-    Timer.periodic(const Duration(milliseconds: 100), (timer) {
+    final isMinus = translationXIncrement < 0;
+    // 0.1秒ごとに回転させて，回転量を減速率に応じて変更
+    int cout = 0;
+    Timer.periodic(const Duration(milliseconds: 50), (timer) {
+      // 回転量が小さくなったら終了
       if (isMinus) {
-        if (lastIncrementValue > -0.05) {
+        if (lastIncrementValue > -0.01) {
           timer.cancel();
         }
       } else {
-        if (lastIncrementValue < 0.05) {
+        if (lastIncrementValue < 0.01) {
           timer.cancel();
         }
       }
-      if (lastIncrementValue.abs() < 0.05) {
-        timer.cancel();
-      }
 
+      // 中心のアンカーノードを回転
       final oldCenterAnchorAngleX = centerAnchorNode.eulerAngles.x;
       centerAnchorNode.eulerAngles =
           vector.Vector3(oldCenterAnchorAngleX + lastIncrementValue, 0, 0);
 
+      // 画像ノードを回転
       for (final (idx, pictureNode) in pictureNodes.indexed) {
         final oldPictureNode = pictureNode.eulerAngles;
         final newNodeAngleX = centerAnchorNode.eulerAngles.x -
@@ -205,12 +215,18 @@ class _GalleryState extends State<Gallery> {
         pictureNode.transform.rotateY(newNodeAngleX - oldPictureNode.x - pi);
       }
 
+      // 回転量を減速
       if (isMinus) {
         lastIncrementValue += decelerationRatio;
       } else {
         lastIncrementValue -= decelerationRatio;
       }
-      decelerationRatio = lastIncrementValue.abs() * 0.35;
+      // decelerationRatio = lastIncrementValue.abs() * 0.2;
+
+      // 減速率を減少
+      decelerationRatio *= (1 - cout * cout * 0.001);
+      decelerationRatio = max(decelerationRatio, 0.005);
+      cout++;
     });
   }
 
