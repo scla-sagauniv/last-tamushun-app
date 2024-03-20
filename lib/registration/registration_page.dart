@@ -43,7 +43,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
     camera = cameras.first;
     _controller = CameraController(
       camera!,
-      ResolutionPreset.veryHigh,
+      ResolutionPreset.low,
     );
     _initializeControllerFuture = _controller.initialize().then((_) async {
       // カメラ初期化後にビデオ撮影を開始
@@ -216,20 +216,21 @@ class _RegistrationPageState extends State<RegistrationPage> {
                 })
           ],
         ),
-        body: Stack(
-          children: <Widget>[
-            if (_initializeControllerFuture != null)
-              SizedBox(
-                width: double.infinity,
-                height: double.infinity,
-                child: FutureBuilder<void>(
+        body: SizedBox(
+          width: double.infinity,
+          height: double.infinity,
+          child: Stack(
+            alignment: Alignment.center,
+            children: <Widget>[
+              if (_initializeControllerFuture != null)
+                FutureBuilder<void>(
                   future: _initializeControllerFuture,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.done &&
                         _controller.value.isInitialized &&
                         isPickToMovie == false) {
                       return AspectRatio(
-                        aspectRatio: _controller.value.aspectRatio,
+                        aspectRatio: 3 / 4,
                         child: CameraPreview(
                           _controller,
                         ),
@@ -239,47 +240,47 @@ class _RegistrationPageState extends State<RegistrationPage> {
                     }
                   },
                 ),
-              ),
-            Positioned(
-              bottom: 70.0,
-              left: 0.0,
-              right: 0.0,
-              child: CircleAvatar(
-                radius: 30.0, // Increase the overall size of the button
-                backgroundColor: Colors.blue, // Set the background color
-                child: IconButton(
-                  icon: const Icon(Icons.camera_alt),
-                  color: Colors.white, // Set the icon color
-                  iconSize: 24.0, // Increase the size of the icon
-                  // onPressed: () => _getImage(ImageSource.camera),
-                  onPressed: isCameraPressed
-                      ? () {}
-                      : () async {
-                          await onCaptureButtonPressed();
-                        },
+              Positioned(
+                bottom: 70.0,
+                left: 0.0,
+                right: 0.0,
+                child: CircleAvatar(
+                  radius: 30.0, // Increase the overall size of the button
+                  backgroundColor: Colors.blue, // Set the background color
+                  child: IconButton(
+                    icon: const Icon(Icons.camera_alt),
+                    color: Colors.white, // Set the icon color
+                    iconSize: 24.0, // Increase the size of the icon
+                    // onPressed: () => _getImage(ImageSource.camera),
+                    onPressed: isCameraPressed
+                        ? () {}
+                        : () async {
+                            await onCaptureButtonPressed();
+                          },
+                  ),
                 ),
               ),
-            ),
-            Positioned(
-              bottom: 70.0,
-              right: 30.0,
-              child: CircleAvatar(
-                radius: 30.0, // Increase the overall size of the button
-                backgroundColor: Colors.blue, // Set the background color
-                child: IconButton(
-                  icon: const Icon(Icons.photo),
-                  color: Colors.white, // Set the icon color
-                  iconSize: 24.0, // Increase the size of the icon
-                  // onPressed: () => _getImage(ImageSource.gallery),
-                  onPressed: isLiblaryPressed
-                      ? () {}
-                      : () async {
-                          await onOpenLibraryButtonPressed();
-                        },
+              Positioned(
+                bottom: 70.0,
+                right: 30.0,
+                child: CircleAvatar(
+                  radius: 30.0, // Increase the overall size of the button
+                  backgroundColor: Colors.blue, // Set the background color
+                  child: IconButton(
+                    icon: const Icon(Icons.photo),
+                    color: Colors.white, // Set the icon color
+                    iconSize: 24.0, // Increase the size of the icon
+                    // onPressed: () => _getImage(ImageSource.gallery),
+                    onPressed: isLiblaryPressed
+                        ? () {}
+                        : () async {
+                            await onOpenLibraryButtonPressed();
+                          },
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ));
   }
 }
@@ -325,39 +326,32 @@ class _DisplayPictureScreenState extends State<DisplayPictureScreen> {
               }),
         ),
         body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Expanded(
-                child: GestureDetector(
-                  onLongPressStart: (_) {
-                    setState(() {
-                      _controller.play();
-                    });
-                  },
-                  onLongPress: () {
-                    setState(() {
-                      sleep(const Duration(milliseconds: 500));
-                      isImagePressed = true;
-                    });
-                  },
-                  onLongPressEnd: (_) {
-                    setState(() {
-                      isImagePressed = false;
-                      _controller.seekTo(const Duration(milliseconds: 300));
-                    });
-                  },
-                  child: _controller.value.isInitialized
-                      ? isImagePressed == false
-                          ? Image.file(File(widget.imagePath))
-                          : AspectRatio(
-                              aspectRatio: _controller.value.aspectRatio,
-                              child: VideoPlayer(_controller),
-                            )
-                      : const CircularProgressIndicator(),
-                ),
-              )
-            ],
+          child: GestureDetector(
+            onLongPressStart: (_) {
+              setState(() {
+                _controller.play();
+              });
+            },
+            onLongPress: () {
+              setState(() {
+                sleep(const Duration(milliseconds: 500));
+                isImagePressed = true;
+              });
+            },
+            onLongPressEnd: (_) {
+              setState(() {
+                isImagePressed = false;
+                _controller.seekTo(const Duration(milliseconds: 300));
+              });
+            },
+            child: _controller.value.isInitialized
+                ? isImagePressed == false
+                    ? Image.file(File(widget.imagePath))
+                    : AspectRatio(
+                        aspectRatio: 3 / 4,
+                        child: VideoPlayer(_controller),
+                      )
+                : const CircularProgressIndicator(),
           ),
         ),
         floatingActionButton: ProgressButton.icon(
