@@ -41,7 +41,7 @@ class _GalleryState extends State<Gallery> {
     super.initState();
     widget.arkitController.onNodePan = galleryPanHandler;
     r = widget.videoPictures.length / 3;
-    distance = r;
+    distance = r - 0.8;
     centerAnchorNode = ARKitNode(
       geometry: ARKitSphere(
         radius: r / 2,
