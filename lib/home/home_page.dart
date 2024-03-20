@@ -60,13 +60,13 @@ class _HomePageState extends State<HomePage> {
                 height: 100,
                 child: ElevatedButton(
                   onPressed: () => context.push('/ar'),
-                  child: const Text(
-                    'AR Gallery',
-                    style: TextStyle(fontSize: 30),
-                  ),
                   style: ButtonStyle(
                     backgroundColor:
                         MaterialStateProperty.all(Colors.orange[200]),
+                  ),
+                  child: const Text(
+                    'AR Gallery',
+                    style: TextStyle(fontSize: 30),
                   ),
                 ),
               ),
