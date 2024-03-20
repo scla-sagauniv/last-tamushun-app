@@ -135,13 +135,9 @@ class DefaultApi {
   ///
   /// * [String] authorization (required):
   ///   format: [Bearer <token>]
-  ///
-  /// * [int] userId (required):
-  ///   Id of an existing user.
-  Future<Response> getUsersUserIdWithHttpInfo(String authorization, int userId,) async {
+  Future<Response> getUsersUserIdWithHttpInfo(String authorization,) async {
     // ignore: prefer_const_declarations
-    final path = r'/users/{userId}'
-      .replaceAll('{userId}', userId.toString());
+    final path = r'/user';
 
     // ignore: prefer_final_locals
     Object? postBody;
@@ -174,11 +170,8 @@ class DefaultApi {
   ///
   /// * [String] authorization (required):
   ///   format: [Bearer <token>]
-  ///
-  /// * [int] userId (required):
-  ///   Id of an existing user.
-  Future<GetUsersUserId200Response?> getUsersUserId(String authorization, int userId,) async {
-    final response = await getUsersUserIdWithHttpInfo(authorization, userId,);
+  Future<UserResponse?> getUsersUserId(String authorization,) async {
+    final response = await getUsersUserIdWithHttpInfo(authorization,);
     if (response.statusCode >= HttpStatus.badRequest) {
       throw ApiException(response.statusCode, await _decodeBodyBytes(response));
     }
@@ -186,7 +179,7 @@ class DefaultApi {
     // At the time of writing this, `dart:convert` will throw an "Unexpected end of input"
     // FormatException when trying to decode an empty string.
     if (response.body.isNotEmpty && response.statusCode != HttpStatus.noContent) {
-      return await apiClient.deserializeAsync(await _decodeBodyBytes(response), 'GetUsersUserId200Response',) as GetUsersUserId200Response;
+      return await apiClient.deserializeAsync(await _decodeBodyBytes(response), 'UserResponse',) as UserResponse;
     
     }
     return null;
@@ -203,14 +196,14 @@ class DefaultApi {
   ///
   /// * [String] mediaId (required):
   ///
-  /// * [PostMediaRequest] postMediaRequest:
-  Future<Response> patchMediumMediaIdWithHttpInfo(String authorization, String mediaId, { PostMediaRequest? postMediaRequest, }) async {
+  /// * [PatchMediumMediaIdRequest] patchMediumMediaIdRequest:
+  Future<Response> patchMediumMediaIdWithHttpInfo(String authorization, String mediaId, { PatchMediumMediaIdRequest? patchMediumMediaIdRequest, }) async {
     // ignore: prefer_const_declarations
     final path = r'/media/{mediaId}'
       .replaceAll('{mediaId}', mediaId);
 
     // ignore: prefer_final_locals
-    Object? postBody = postMediaRequest;
+    Object? postBody = patchMediumMediaIdRequest;
 
     final queryParams = <QueryParam>[];
     final headerParams = <String, String>{};
@@ -241,9 +234,9 @@ class DefaultApi {
   ///
   /// * [String] mediaId (required):
   ///
-  /// * [PostMediaRequest] postMediaRequest:
-  Future<Media?> patchMediumMediaId(String authorization, String mediaId, { PostMediaRequest? postMediaRequest, }) async {
-    final response = await patchMediumMediaIdWithHttpInfo(authorization, mediaId,  postMediaRequest: postMediaRequest, );
+  /// * [PatchMediumMediaIdRequest] patchMediumMediaIdRequest:
+  Future<Media?> patchMediumMediaId(String authorization, String mediaId, { PatchMediumMediaIdRequest? patchMediumMediaIdRequest, }) async {
+    final response = await patchMediumMediaIdWithHttpInfo(authorization, mediaId,  patchMediumMediaIdRequest: patchMediumMediaIdRequest, );
     if (response.statusCode >= HttpStatus.badRequest) {
       throw ApiException(response.statusCode, await _decodeBodyBytes(response));
     }
@@ -268,18 +261,14 @@ class DefaultApi {
   /// * [String] authorization (required):
   ///   format: [Bearer <token>]
   ///
-  /// * [int] userId (required):
-  ///   Id of an existing user.
-  ///
-  /// * [PatchUsersUserIdRequest] patchUsersUserIdRequest:
+  /// * [UserUpdate] userUpdate:
   ///   Patch user properties to update.
-  Future<Response> patchUsersUserIdWithHttpInfo(String authorization, int userId, { PatchUsersUserIdRequest? patchUsersUserIdRequest, }) async {
+  Future<Response> patchUsersUserIdWithHttpInfo(String authorization, { UserUpdate? userUpdate, }) async {
     // ignore: prefer_const_declarations
-    final path = r'/users/{userId}'
-      .replaceAll('{userId}', userId.toString());
+    final path = r'/user';
 
     // ignore: prefer_final_locals
-    Object? postBody = patchUsersUserIdRequest;
+    Object? postBody = userUpdate;
 
     final queryParams = <QueryParam>[];
     final headerParams = <String, String>{};
@@ -310,13 +299,10 @@ class DefaultApi {
   /// * [String] authorization (required):
   ///   format: [Bearer <token>]
   ///
-  /// * [int] userId (required):
-  ///   Id of an existing user.
-  ///
-  /// * [PatchUsersUserIdRequest] patchUsersUserIdRequest:
+  /// * [UserUpdate] userUpdate:
   ///   Patch user properties to update.
-  Future<Object?> patchUsersUserId(String authorization, int userId, { PatchUsersUserIdRequest? patchUsersUserIdRequest, }) async {
-    final response = await patchUsersUserIdWithHttpInfo(authorization, userId,  patchUsersUserIdRequest: patchUsersUserIdRequest, );
+  Future<UserResponse?> patchUsersUserId(String authorization, { UserUpdate? userUpdate, }) async {
+    final response = await patchUsersUserIdWithHttpInfo(authorization,  userUpdate: userUpdate, );
     if (response.statusCode >= HttpStatus.badRequest) {
       throw ApiException(response.statusCode, await _decodeBodyBytes(response));
     }
@@ -324,7 +310,7 @@ class DefaultApi {
     // At the time of writing this, `dart:convert` will throw an "Unexpected end of input"
     // FormatException when trying to decode an empty string.
     if (response.body.isNotEmpty && response.statusCode != HttpStatus.noContent) {
-      return await apiClient.deserializeAsync(await _decodeBodyBytes(response), 'Object',) as Object;
+      return await apiClient.deserializeAsync(await _decodeBodyBytes(response), 'UserResponse',) as UserResponse;
     
     }
     return null;
@@ -336,13 +322,13 @@ class DefaultApi {
   ///
   /// Parameters:
   ///
-  /// * [PostLoginRequest] postLoginRequest:
-  Future<Response> postLoginWithHttpInfo({ PostLoginRequest? postLoginRequest, }) async {
+  /// * [UserLogin] userLogin:
+  Future<Response> postLoginWithHttpInfo({ UserLogin? userLogin, }) async {
     // ignore: prefer_const_declarations
     final path = r'/login';
 
     // ignore: prefer_final_locals
-    Object? postBody = postLoginRequest;
+    Object? postBody = userLogin;
 
     final queryParams = <QueryParam>[];
     final headerParams = <String, String>{};
@@ -366,9 +352,9 @@ class DefaultApi {
   ///
   /// Parameters:
   ///
-  /// * [PostLoginRequest] postLoginRequest:
-  Future<PostUser201Response?> postLogin({ PostLoginRequest? postLoginRequest, }) async {
-    final response = await postLoginWithHttpInfo( postLoginRequest: postLoginRequest, );
+  /// * [UserLogin] userLogin:
+  Future<UserToken?> postLogin({ UserLogin? userLogin, }) async {
+    final response = await postLoginWithHttpInfo( userLogin: userLogin, );
     if (response.statusCode >= HttpStatus.badRequest) {
       throw ApiException(response.statusCode, await _decodeBodyBytes(response));
     }
@@ -376,7 +362,7 @@ class DefaultApi {
     // At the time of writing this, `dart:convert` will throw an "Unexpected end of input"
     // FormatException when trying to decode an empty string.
     if (response.body.isNotEmpty && response.statusCode != HttpStatus.noContent) {
-      return await apiClient.deserializeAsync(await _decodeBodyBytes(response), 'PostUser201Response',) as PostUser201Response;
+      return await apiClient.deserializeAsync(await _decodeBodyBytes(response), 'UserToken',) as UserToken;
     
     }
     return null;
@@ -391,13 +377,13 @@ class DefaultApi {
   /// * [String] authorization (required):
   ///   format: [Bearer <token>]
   ///
-  /// * [PostMediaRequest] postMediaRequest:
-  Future<Response> postMediaWithHttpInfo(String authorization, { PostMediaRequest? postMediaRequest, }) async {
+  /// * [MediaCreate] mediaCreate:
+  Future<Response> postMediaWithHttpInfo(String authorization, { MediaCreate? mediaCreate, }) async {
     // ignore: prefer_const_declarations
     final path = r'/media';
 
     // ignore: prefer_final_locals
-    Object? postBody = postMediaRequest;
+    Object? postBody = mediaCreate;
 
     final queryParams = <QueryParam>[];
     final headerParams = <String, String>{};
@@ -426,9 +412,9 @@ class DefaultApi {
   /// * [String] authorization (required):
   ///   format: [Bearer <token>]
   ///
-  /// * [PostMediaRequest] postMediaRequest:
-  Future<Media?> postMedia(String authorization, { PostMediaRequest? postMediaRequest, }) async {
-    final response = await postMediaWithHttpInfo(authorization,  postMediaRequest: postMediaRequest, );
+  /// * [MediaCreate] mediaCreate:
+  Future<Media?> postMedia(String authorization, { MediaCreate? mediaCreate, }) async {
+    final response = await postMediaWithHttpInfo(authorization,  mediaCreate: mediaCreate, );
     if (response.statusCode >= HttpStatus.badRequest) {
       throw ApiException(response.statusCode, await _decodeBodyBytes(response));
     }
@@ -450,14 +436,14 @@ class DefaultApi {
   ///
   /// Parameters:
   ///
-  /// * [PostUserRequest] postUserRequest:
+  /// * [UserCreate] userCreate:
   ///   Post the necessary fields for the API to create a new user.
-  Future<Response> postUserWithHttpInfo({ PostUserRequest? postUserRequest, }) async {
+  Future<Response> postUserWithHttpInfo({ UserCreate? userCreate, }) async {
     // ignore: prefer_const_declarations
     final path = r'/signup';
 
     // ignore: prefer_final_locals
-    Object? postBody = postUserRequest;
+    Object? postBody = userCreate;
 
     final queryParams = <QueryParam>[];
     final headerParams = <String, String>{};
@@ -483,10 +469,10 @@ class DefaultApi {
   ///
   /// Parameters:
   ///
-  /// * [PostUserRequest] postUserRequest:
+  /// * [UserCreate] userCreate:
   ///   Post the necessary fields for the API to create a new user.
-  Future<PostUser201Response?> postUser({ PostUserRequest? postUserRequest, }) async {
-    final response = await postUserWithHttpInfo( postUserRequest: postUserRequest, );
+  Future<UserToken?> postUser({ UserCreate? userCreate, }) async {
+    final response = await postUserWithHttpInfo( userCreate: userCreate, );
     if (response.statusCode >= HttpStatus.badRequest) {
       throw ApiException(response.statusCode, await _decodeBodyBytes(response));
     }
@@ -494,7 +480,7 @@ class DefaultApi {
     // At the time of writing this, `dart:convert` will throw an "Unexpected end of input"
     // FormatException when trying to decode an empty string.
     if (response.body.isNotEmpty && response.statusCode != HttpStatus.noContent) {
-      return await apiClient.deserializeAsync(await _decodeBodyBytes(response), 'PostUser201Response',) as PostUser201Response;
+      return await apiClient.deserializeAsync(await _decodeBodyBytes(response), 'UserToken',) as UserToken;
     
     }
     return null;

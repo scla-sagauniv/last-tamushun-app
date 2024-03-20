@@ -184,20 +184,22 @@ class ApiClient {
           return value is DateTime ? value : DateTime.tryParse(value);
         case 'GetMedia200Response':
           return GetMedia200Response.fromJson(value);
-        case 'GetUsersUserId200Response':
-          return GetUsersUserId200Response.fromJson(value);
         case 'Media':
           return Media.fromJson(value);
-        case 'PatchUsersUserIdRequest':
-          return PatchUsersUserIdRequest.fromJson(value);
-        case 'PostLoginRequest':
-          return PostLoginRequest.fromJson(value);
-        case 'PostMediaRequest':
-          return PostMediaRequest.fromJson(value);
-        case 'PostUser201Response':
-          return PostUser201Response.fromJson(value);
-        case 'PostUserRequest':
-          return PostUserRequest.fromJson(value);
+        case 'MediaCreate':
+          return MediaCreate.fromJson(value);
+        case 'PatchMediumMediaIdRequest':
+          return PatchMediumMediaIdRequest.fromJson(value);
+        case 'UserCreate':
+          return UserCreate.fromJson(value);
+        case 'UserLogin':
+          return UserLogin.fromJson(value);
+        case 'UserResponse':
+          return UserResponse.fromJson(value);
+        case 'UserToken':
+          return UserToken.fromJson(value);
+        case 'UserUpdate':
+          return UserUpdate.fromJson(value);
         default:
           dynamic match;
           if (value is List && (match = _regList.firstMatch(targetType)?.group(1)) != null) {

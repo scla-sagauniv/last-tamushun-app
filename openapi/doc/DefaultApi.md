@@ -11,9 +11,9 @@ Method | HTTP request | Description
 ------------- | ------------- | -------------
 [**deleteMediumMediaId**](DefaultApi.md#deletemediummediaid) | **DELETE** /media/{mediaId} | Delete Media
 [**getMedia**](DefaultApi.md#getmedia) | **GET** /media | Get Medias
-[**getUsersUserId**](DefaultApi.md#getusersuserid) | **GET** /users/{userId} | Get User Info by User ID
+[**getUsersUserId**](DefaultApi.md#getusersuserid) | **GET** /user | Get User Info by User ID
 [**patchMediumMediaId**](DefaultApi.md#patchmediummediaid) | **PATCH** /media/{mediaId} | Update Media Info
-[**patchUsersUserId**](DefaultApi.md#patchusersuserid) | **PATCH** /users/{userId} | Update User Information
+[**patchUsersUserId**](DefaultApi.md#patchusersuserid) | **PATCH** /user | Update User Information
 [**postLogin**](DefaultApi.md#postlogin) | **POST** /login | Login
 [**postMedia**](DefaultApi.md#postmedia) | **POST** /media | Create New Media
 [**postUser**](DefaultApi.md#postuser) | **POST** /signup | Create New User
@@ -103,7 +103,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **getUsersUserId**
-> GetUsersUserId200Response getUsersUserId(authorization, userId)
+> UserResponse getUsersUserId(authorization)
 
 Get User Info by User ID
 
@@ -115,10 +115,9 @@ import 'package:openapi/api.dart';
 
 final api_instance = DefaultApi();
 final authorization = authorization_example; // String | format: [Bearer <token>]
-final userId = 56; // int | Id of an existing user.
 
 try {
-    final result = api_instance.getUsersUserId(authorization, userId);
+    final result = api_instance.getUsersUserId(authorization);
     print(result);
 } catch (e) {
     print('Exception when calling DefaultApi->getUsersUserId: $e\n');
@@ -130,11 +129,10 @@ try {
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **authorization** | **String**| format: [Bearer <token>] | 
- **userId** | **int**| Id of an existing user. | 
 
 ### Return type
 
-[**GetUsersUserId200Response**](GetUsersUserId200Response.md)
+[**UserResponse**](UserResponse.md)
 
 ### Authorization
 
@@ -148,7 +146,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **patchMediumMediaId**
-> Media patchMediumMediaId(authorization, mediaId, postMediaRequest)
+> Media patchMediumMediaId(authorization, mediaId, patchMediumMediaIdRequest)
 
 Update Media Info
 
@@ -159,10 +157,10 @@ import 'package:openapi/api.dart';
 final api_instance = DefaultApi();
 final authorization = authorization_example; // String | format: [Bearer <token>]
 final mediaId = mediaId_example; // String | 
-final postMediaRequest = PostMediaRequest(); // PostMediaRequest | 
+final patchMediumMediaIdRequest = PatchMediumMediaIdRequest(); // PatchMediumMediaIdRequest | 
 
 try {
-    final result = api_instance.patchMediumMediaId(authorization, mediaId, postMediaRequest);
+    final result = api_instance.patchMediumMediaId(authorization, mediaId, patchMediumMediaIdRequest);
     print(result);
 } catch (e) {
     print('Exception when calling DefaultApi->patchMediumMediaId: $e\n');
@@ -175,7 +173,7 @@ Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **authorization** | **String**| format: [Bearer <token>] | 
  **mediaId** | **String**|  | 
- **postMediaRequest** | [**PostMediaRequest**](PostMediaRequest.md)|  | [optional] 
+ **patchMediumMediaIdRequest** | [**PatchMediumMediaIdRequest**](PatchMediumMediaIdRequest.md)|  | [optional] 
 
 ### Return type
 
@@ -193,7 +191,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **patchUsersUserId**
-> Object patchUsersUserId(authorization, userId, patchUsersUserIdRequest)
+> UserResponse patchUsersUserId(authorization, userUpdate)
 
 Update User Information
 
@@ -205,11 +203,10 @@ import 'package:openapi/api.dart';
 
 final api_instance = DefaultApi();
 final authorization = authorization_example; // String | format: [Bearer <token>]
-final userId = 56; // int | Id of an existing user.
-final patchUsersUserIdRequest = PatchUsersUserIdRequest(); // PatchUsersUserIdRequest | Patch user properties to update.
+final userUpdate = UserUpdate(); // UserUpdate | Patch user properties to update.
 
 try {
-    final result = api_instance.patchUsersUserId(authorization, userId, patchUsersUserIdRequest);
+    final result = api_instance.patchUsersUserId(authorization, userUpdate);
     print(result);
 } catch (e) {
     print('Exception when calling DefaultApi->patchUsersUserId: $e\n');
@@ -221,12 +218,11 @@ try {
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **authorization** | **String**| format: [Bearer <token>] | 
- **userId** | **int**| Id of an existing user. | 
- **patchUsersUserIdRequest** | [**PatchUsersUserIdRequest**](PatchUsersUserIdRequest.md)| Patch user properties to update. | [optional] 
+ **userUpdate** | [**UserUpdate**](UserUpdate.md)| Patch user properties to update. | [optional] 
 
 ### Return type
 
-[**Object**](Object.md)
+[**UserResponse**](UserResponse.md)
 
 ### Authorization
 
@@ -240,7 +236,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **postLogin**
-> PostUser201Response postLogin(postLoginRequest)
+> UserToken postLogin(userLogin)
 
 Login
 
@@ -249,10 +245,10 @@ Login
 import 'package:openapi/api.dart';
 
 final api_instance = DefaultApi();
-final postLoginRequest = PostLoginRequest(); // PostLoginRequest | 
+final userLogin = UserLogin(); // UserLogin | 
 
 try {
-    final result = api_instance.postLogin(postLoginRequest);
+    final result = api_instance.postLogin(userLogin);
     print(result);
 } catch (e) {
     print('Exception when calling DefaultApi->postLogin: $e\n');
@@ -263,11 +259,11 @@ try {
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **postLoginRequest** | [**PostLoginRequest**](PostLoginRequest.md)|  | [optional] 
+ **userLogin** | [**UserLogin**](UserLogin.md)|  | [optional] 
 
 ### Return type
 
-[**PostUser201Response**](PostUser201Response.md)
+[**UserToken**](UserToken.md)
 
 ### Authorization
 
@@ -281,7 +277,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **postMedia**
-> Media postMedia(authorization, postMediaRequest)
+> Media postMedia(authorization, mediaCreate)
 
 Create New Media
 
@@ -291,10 +287,10 @@ import 'package:openapi/api.dart';
 
 final api_instance = DefaultApi();
 final authorization = authorization_example; // String | format: [Bearer <token>]
-final postMediaRequest = PostMediaRequest(); // PostMediaRequest | 
+final mediaCreate = MediaCreate(); // MediaCreate | 
 
 try {
-    final result = api_instance.postMedia(authorization, postMediaRequest);
+    final result = api_instance.postMedia(authorization, mediaCreate);
     print(result);
 } catch (e) {
     print('Exception when calling DefaultApi->postMedia: $e\n');
@@ -306,7 +302,7 @@ try {
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **authorization** | **String**| format: [Bearer <token>] | 
- **postMediaRequest** | [**PostMediaRequest**](PostMediaRequest.md)|  | [optional] 
+ **mediaCreate** | [**MediaCreate**](MediaCreate.md)|  | [optional] 
 
 ### Return type
 
@@ -324,7 +320,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **postUser**
-> PostUser201Response postUser(postUserRequest)
+> UserToken postUser(userCreate)
 
 Create New User
 
@@ -335,10 +331,10 @@ Create a new user.
 import 'package:openapi/api.dart';
 
 final api_instance = DefaultApi();
-final postUserRequest = PostUserRequest(); // PostUserRequest | Post the necessary fields for the API to create a new user.
+final userCreate = UserCreate(); // UserCreate | Post the necessary fields for the API to create a new user.
 
 try {
-    final result = api_instance.postUser(postUserRequest);
+    final result = api_instance.postUser(userCreate);
     print(result);
 } catch (e) {
     print('Exception when calling DefaultApi->postUser: $e\n');
@@ -349,11 +345,11 @@ try {
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **postUserRequest** | [**PostUserRequest**](PostUserRequest.md)| Post the necessary fields for the API to create a new user. | [optional] 
+ **userCreate** | [**UserCreate**](UserCreate.md)| Post the necessary fields for the API to create a new user. | [optional] 
 
 ### Return type
 
-[**PostUser201Response**](PostUser201Response.md)
+[**UserToken**](UserToken.md)
 
 ### Authorization
 
