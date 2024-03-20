@@ -23,7 +23,7 @@ class _HomePageState extends State<HomePage> {
           actions: [
             IconButton(
               icon: const Icon(Icons.account_circle),
-              onPressed: () => context.go('/auth'),
+              onPressed: () => context.go('/login'),
             ),
             IconButton(
                 icon: Icon(Icons.close),

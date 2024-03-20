@@ -1,13 +1,13 @@
-import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:last_tamushun_app/ar/ar_page.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:last_tamushun_app/authentication/auth_page.dart';
+import 'package:last_tamushun_app/authentication/login_page.dart';
 import 'package:last_tamushun_app/error_page.dart';
 import 'package:last_tamushun_app/home/home_page.dart';
 import 'package:last_tamushun_app/registration/registration_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'authentication/signup_page.dart';
 
 Future<String?> _getToken() async {
   final prefs = await SharedPreferences.getInstance();
@@ -48,8 +48,12 @@ final routerProvider = Provider((ref) {
         builder: (context, state) => const HomePage(),
       ),
       GoRoute(
-        path: '/auth',
-        builder: (context, state) => const AuthPage(),
+        path: '/login',
+        builder: (context, state) => const LoginPage(),
+      ),
+      GoRoute(
+        path: "/signup",
+        builder: (context, state) => const SignUpPage(),
       ),
       GoRoute(
         path: '/registration',
@@ -67,10 +71,23 @@ final routerProvider = Provider((ref) {
     redirect: (context, state) async {
       final token = await _getToken();
 
-      final loggingIn = state.matchedLocation == '/auth';
+      final isLoggingIn = state.matchedLocation == '/login';
+      final isSigningUp = state.matchedLocation == '/signup';
 
-      if (token == null && !loggingIn) return '/auth';
-      if (token != null && loggingIn) return '/';
+      // トークンが存在し、ログインページまたはサインアップページにアクセスしようとしている場合は、そのまま許可
+      if (token != null && (isLoggingIn || isSigningUp)) {
+        return null;
+      }
+
+      // トークンが存在し、ログインやサインアップ以外のページにアクセスしようとしている場合はホームへリダイレクト
+      if (token != null) {
+        return '/';
+      }
+
+      // トークンが存在しない場合は、ログインページにリダイレクト
+      if (token == null && !isLoggingIn && !isSigningUp) {
+        return '/login';
+      }
 
       return null;
     },
@@ -95,7 +112,7 @@ class RouteListPage extends StatelessWidget {
           ),
           ListTile(
             title: const Text('auth'),
-            onTap: () => context.go('/auth'),
+            onTap: () => context.go('/login'),
           ),
           ListTile(
             title: const Text('registration'),

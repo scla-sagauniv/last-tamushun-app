@@ -207,7 +207,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
           actions: [
             IconButton(
               icon: const Icon(Icons.account_circle),
-              onPressed: () => context.go('/auth'),
+              onPressed: () => context.go('/login'),
             ),
             IconButton(
                 icon: const Icon(Icons.close),

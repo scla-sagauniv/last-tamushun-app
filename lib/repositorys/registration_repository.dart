@@ -1,12 +1,14 @@
 import 'package:openapi/api.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class RegistrationRepository {
   final apiInstance = DefaultApi();
 
   Future<String> postUploadFile(String imageURL, String movieURL) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     try {
-      final respons = await apiInstance.postMedia(
-          "Bearer 1234567890abcdefghijklmnopqrstuvwxyz",
+      final token = prefs.getString('token');
+      final respons = await apiInstance.postMedia("Bearer $token",
           postMediaRequest: PostMediaRequest(
             lon: 0,
             lat: 0,

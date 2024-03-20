@@ -1,62 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'package:last_tamushun_app/repositorys/auth_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class AuthPage extends StatefulWidget {
-  const AuthPage({Key? key}) : super(key: key);
+class LoginPage extends StatefulWidget {
+  const LoginPage({Key? key}) : super(key: key);
 
   @override
-  _AuthPageState createState() => _AuthPageState();
+  _LoginPageState createState() => _LoginPageState();
 }
 
-class _AuthPageState extends State<AuthPage> {
-  TextEditingController nameController = TextEditingController();
+class _LoginPageState extends State<LoginPage> {
+  TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   String infoText = ''; // エラーメッセージ用の変数
+  final AuthRepository authRepository = AuthRepository();
 
   Future<void> login() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     try {
-      // final response = await http.post(
-      //   Uri.parse('http://localhost:3001/login'),
-      //   headers: {'Content-Type': 'application/json'},
-      //   body: jsonEncode({
-      //     'username': nameController.text,
-      //     'password': passwordController.text,
-      //   }),
-      // );
-
-      var statusCode;
-      statusCode = 200;
-      if (statusCode == 200) {
-        // final responseData = json.decode(response.body);
-        Map<String, dynamic> responseData = {}; // 既存のMapオブジェクトがあると仮定
-        responseData['accessToken'] =
-            "hogehoge"; // 'accessToken'キーに"hogehoge"を代入
-        if (responseData['accessToken'] != null) {
-          await prefs.setString('token', responseData['accessToken']);
-          GoRouter.of(context).go('/route_list');
-        } else {
-          setState(() {
-            infoText = responseData['message'] ?? 'Unknown error occurred.';
-          });
-          Error();
-        }
-      } else {
-        setState(() {
-          // infoText = 'Error: ${response.statusCode}';
-          infoText = 'Error: ${statusCode}';
-        });
-        Error();
-      }
+      await authRepository.postLogin(
+          emailController.text, passwordController.text);
+      GoRouter.of(context).go('/route_list');
     } catch (e) {
       setState(() {
         infoText = 'Login failed: ${e.toString()}';
       });
       await prefs.setString('token', '');
-      GoRouter.of(context).go('/auth');
+      GoRouter.of(context).go('/login');
     }
   }
 
@@ -77,7 +48,7 @@ class _AuthPageState extends State<AuthPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 TextFormField(
-                  controller: nameController,
+                  controller: emailController,
                   decoration: InputDecoration(labelText: 'メールアドレス'),
                 ),
                 TextFormField(
@@ -90,6 +61,10 @@ class _AuthPageState extends State<AuthPage> {
                   child: Text('ログイン'),
                   onPressed: login, // ログイン関数を呼び出す
                 ),
+                ElevatedButton(
+                  onPressed: () => context.go('/signup'),
+                  child: const Text('新規登録'),
+                )
                 // ユーザー登録ボタンの処理は省略
               ],
             ),
