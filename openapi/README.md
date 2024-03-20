@@ -61,9 +61,9 @@ Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
 *DefaultApi* | [**deleteMediumMediaId**](doc//DefaultApi.md#deletemediummediaid) | **DELETE** /media/{mediaId} | Delete Media
 *DefaultApi* | [**getMedia**](doc//DefaultApi.md#getmedia) | **GET** /media | Get Medias
-*DefaultApi* | [**getUsersUserId**](doc//DefaultApi.md#getusersuserid) | **GET** /users/{userId} | Get User Info by User ID
+*DefaultApi* | [**getUsersUserId**](doc//DefaultApi.md#getusersuserid) | **GET** /user | Get User Info by User ID
 *DefaultApi* | [**patchMediumMediaId**](doc//DefaultApi.md#patchmediummediaid) | **PATCH** /media/{mediaId} | Update Media Info
-*DefaultApi* | [**patchUsersUserId**](doc//DefaultApi.md#patchusersuserid) | **PATCH** /users/{userId} | Update User Information
+*DefaultApi* | [**patchUsersUserId**](doc//DefaultApi.md#patchusersuserid) | **PATCH** /user | Update User Information
 *DefaultApi* | [**postLogin**](doc//DefaultApi.md#postlogin) | **POST** /login | Login
 *DefaultApi* | [**postMedia**](doc//DefaultApi.md#postmedia) | **POST** /media | Create New Media
 *DefaultApi* | [**postUser**](doc//DefaultApi.md#postuser) | **POST** /signup | Create New User
@@ -72,13 +72,14 @@ Class | Method | HTTP request | Description
 ## Documentation For Models
 
  - [GetMedia200Response](doc//GetMedia200Response.md)
- - [GetUsersUserId200Response](doc//GetUsersUserId200Response.md)
  - [Media](doc//Media.md)
- - [PatchUsersUserIdRequest](doc//PatchUsersUserIdRequest.md)
- - [PostLoginRequest](doc//PostLoginRequest.md)
- - [PostMediaRequest](doc//PostMediaRequest.md)
- - [PostUser201Response](doc//PostUser201Response.md)
- - [PostUserRequest](doc//PostUserRequest.md)
+ - [MediaCreate](doc//MediaCreate.md)
+ - [PatchMediumMediaIdRequest](doc//PatchMediumMediaIdRequest.md)
+ - [UserCreate](doc//UserCreate.md)
+ - [UserLogin](doc//UserLogin.md)
+ - [UserResponse](doc//UserResponse.md)
+ - [UserToken](doc//UserToken.md)
+ - [UserUpdate](doc//UserUpdate.md)
 
 
 ## Documentation For Authorization
