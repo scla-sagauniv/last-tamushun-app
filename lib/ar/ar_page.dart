@@ -111,6 +111,7 @@ class ARPageState extends ConsumerState<ARPage> {
         final node = ARKitNode(
           geometry: plane,
           transformation: detectedTransform,
+          name: 'ar_video',
         );
         arkitController?.add(node);
       }
@@ -118,7 +119,9 @@ class ARPageState extends ConsumerState<ARPage> {
 
     void onNodeTapHandler(List<String> nodesList) {
       final nodeName = nodesList.first;
-      if (nodeName.startsWith('gallery/')) {
+      if (nodeName == 'ar_video') {
+        arkitController?.remove(nodeName);
+      } else if (nodeName.startsWith('gallery/')) {
         galleryTapHandler(context, nodeName, videoPictures);
       }
     }
