@@ -1,5 +1,6 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:openapi/api.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 final videoPictureRepositoryProvider = Provider<VideoPictureRepository>(
   (ref) => VideoPictureRepositoryImpl(),
@@ -14,10 +15,14 @@ class VideoPictureRepositoryImpl implements VideoPictureRepository {
 
   @override
   Future<List<Media>> getVideoPicture() async {
+    final prefs = await SharedPreferences.getInstance();
     // return pictureDemo;
     try {
-      final respons = await apiInstance
-          .getMedia("Bearer 1234567890abcdefghijklmnopqrstuvwxyz");
+      final token = prefs.getString('token');
+      if (token == null) {
+        throw Exception('Token is null');
+      }
+      final respons = await apiInstance.getMedia('Bearer $token');
       if (respons == null) {
         throw Exception('Failed to get video picture');
       }
